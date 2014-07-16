@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = Beetle::VERSION
   spec.authors       = ["Luciano Maiwald"]
   spec.email         = ["luciano.maiwald@gmail.com"]
-  spec.summary       = %q{TODO: Write a short summary. Required.}
-  spec.description   = %q{TODO: Write a longer description. Optional.}
+  spec.summary       = %q{Beetle helps you with your ETL import.}
+  spec.description   = %q{Taking care of synchronizing external data with referential data in your application.}
   spec.homepage      = ""
   spec.license       = "MIT"
 
@@ -18,6 +18,10 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ["lib"]
 
+  spec.add_runtime_dependency "sequel"
+
   spec.add_development_dependency "bundler", "~> 1.6"
   spec.add_development_dependency "rake"
+  spec.add_development_dependency "rspec"
+  spec.add_development_dependency "pg"
 end

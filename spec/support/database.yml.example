@@ -1,0 +1,9 @@
+adapter: 'postgres'
+encoding: utf8
+host: localhost
+database: beetle_test
+username: ''
+password: ''
+pool: 5
+pool_timeout: 360
+connect_timeout: 360

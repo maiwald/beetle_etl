@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+config_file="/usr/local/var/postgres/postgresql.conf"
+
+case "$1" in
+  "run" )
+    postgres -D /usr/local/var/postgres -c config_file=$config_file
+    ;;
+  * )
+    echo "USAGE: $0 {brew|…} run"
+    ;;
+esac
