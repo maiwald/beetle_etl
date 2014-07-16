@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["luciano.maiwald@gmail.com"]
   spec.summary       = %q{Beetle helps you with your ETL import.}
   spec.description   = %q{Taking care of synchronizing external data with referential data in your application.}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/maiwald/beetle"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0")
