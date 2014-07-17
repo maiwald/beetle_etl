@@ -21,7 +21,7 @@ describe Beetle do
       [ 2        , 'Apple' , 'MacBook'  ] ,
     )
 
-    Beetle.import File.expand_path('example_transform.rb', __FILE__)
+    Beetle.import File.expand_path('../example_transform.rb', __FILE__)
 
     expect('public.organisations').to have_values(
       [ :id , :external_id , :external_source , :name   , :created_at , :deleted_at ] ,
