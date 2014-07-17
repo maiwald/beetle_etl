@@ -1,16 +1,19 @@
-require_relative '../lib/tom_hanks.rb'
-require_relative 'support/connection_helpers.rb'
+require_relative '../lib/beetle.rb'
+require_relative 'support/database_helpers.rb'
 
 RSpec.configure do |config|
 
-  config.include SpecSupport::ConnectionHelpers
+  config.include SpecSupport::DatabaseHelpers
   config.backtrace_exclusion_patterns = [/rspec-core/]
 
   config.around(:each) do |example|
-    test_connection.transaction do
+    if example.metadata[:feature]
       example.run
-      # force a rollback
-      raise Sequel::Error::Rollback
+    else
+      test_database.transaction do
+        example.run
+        raise Sequel::Error::Rollback
+      end
     end
   end
 

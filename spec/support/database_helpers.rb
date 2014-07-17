@@ -3,7 +3,7 @@ require 'yaml'
 require 'rspec/expectations'
 
 module SpecSupport
-  module ConnectionHelpers
+  module DatabaseHelpers
 
     module Test
       class Table
@@ -19,8 +19,8 @@ module SpecSupport
       end
     end
 
-    def test_connection
-      @connection ||= begin
+    def test_database
+      @database ||= begin
         config_path = File.expand_path('./database.yml', File.dirname(__FILE__))
         config = File.read(config_path)
         Sequel.connect(YAML.load(config))
@@ -29,7 +29,7 @@ module SpecSupport
 
     def insert_into(table_desc)
       schema, table = table_desc.split('.')
-      dataset = test_connection["#{schema}__#{table}".to_sym]
+      dataset = test_database["#{schema}__#{table}".to_sym]
 
       Test::Table.new(dataset)
     end
@@ -38,9 +38,9 @@ module SpecSupport
 end
 
 RSpec::Matchers.define :have_values do |*rows|
-  match_for_should do |table_desc|
+  match do |table_desc|
     schema, table = table_desc.split('.')
-    dataset = test_connection[:"#{schema}__#{table}"]
+    dataset = test_database[:"#{schema}__#{table}"]
 
     columns = rows[0].map(&:to_sym)
     values = rows[1..-1]
@@ -55,7 +55,7 @@ RSpec::Matchers.define :have_values do |*rows|
     end
   end
 
-  failure_message_for_should do |dataset|
+  failure_message do |dataset|
     @expectation_not_met_error.message
   end
 end

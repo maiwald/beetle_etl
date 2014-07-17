@@ -1,5 +1,8 @@
 require "beetle/version"
 
 module Beetle
-  # Your code goes here...
+  class << self
+    def import(transform_file)
+    end
+  end
 end
