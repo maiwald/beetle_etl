@@ -14,7 +14,7 @@ describe Beetle do
     drop_tables
   end
 
-  it 'is a walking skeleton', :feature do
+  xit 'is a working', :feature do
     insert_into('source.Organisation').values(
       [ :pkOrgId , :Name   , :Abteilung ] ,
       [ 1        , 'Apple' , 'iPhone'   ] ,
