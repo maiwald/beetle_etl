@@ -1,4 +1,5 @@
 # Beetle
+[![Build Status](https://travis-ci.org/maiwald/beetle.svg?branch=master)](https://travis-ci.org/maiwald/beetle)
 [![Code Climate](https://codeclimate.com/github/maiwald/beetle.png)](https://codeclimate.com/github/maiwald/beetle)
 
 TODO: Write a gem description
