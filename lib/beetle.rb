@@ -2,6 +2,7 @@ require "beetle/version"
 
 module Beetle
 
+  require 'beetle/dsl'
   require 'beetle/transformation'
   require 'beetle/transformation_loader'
 

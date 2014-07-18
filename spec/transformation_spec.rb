@@ -36,15 +36,16 @@ module Beetle
     end
 
     describe '#query' do
-      it 'returns the query interpolating external_source and run_id methods' do
+      it 'returns the query interpolating methods in scope' do
 
         setup = Proc.new do
-          query "SELECT #{run_id}, '#{external_source}' FROM some_table"
+          def foo; "foo_string"; end
+          query "SELECT '#{foo}' FROM some_table"
         end
         transformation = Transformation.new(:table, setup)
 
         expect(transformation.query).to eql(
-          "SELECT 1, 'my_source' FROM some_table"
+          "SELECT 'foo_string' FROM some_table"
         )
       end
     end
