@@ -1,4 +1,5 @@
 # Beetle
+[![Code Climate](https://codeclimate.com/github/maiwald/beetle.png)](https://codeclimate.com/github/maiwald/beetle)
 
 TODO: Write a gem description
 
