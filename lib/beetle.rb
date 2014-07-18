@@ -5,10 +5,11 @@ module Beetle
   require 'beetle/transformation'
   require 'beetle/transformation_loader'
 
-  class << self
-    def import(transformations_file)
-      transformations = TransformationLoader.load(transformations_file)
-      transformations
-    end
+  extend self
+
+  def import(transformations_file)
+    transformations = TransformationLoader.load(transformations_file)
+    transformations
   end
+
 end
