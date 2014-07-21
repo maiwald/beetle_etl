@@ -8,11 +8,8 @@ describe Beetle do
   let!(:now) { Time.new(2014, 07, 17, 16, 12) }
   before { allow(Time).to receive(:now) { now } }
 
-  around :each do |example|
-    create_tables
-    example.run
-    drop_tables
-  end
+  before { create_tables }
+  after { drop_tables }
 
   xit 'is a working', :feature do
     insert_into('source.Organisation').values(
@@ -33,8 +30,6 @@ describe Beetle do
       [ 1   , '[apple-1]'  , 'source_name'    , 'iPhone'  , 1                , now         , nil         ] ,
       [ 2   , '[apple-2]'  , 'source_name'    , 'MacBook' , 1                , now         , nil         ] ,
     )
-
   end
 
 end
-
