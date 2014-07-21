@@ -1,3 +1,6 @@
+require "codeclimate-test-reporter"
+CodeClimate::TestReporter.start
+
 require_relative '../lib/beetle.rb'
 require_relative 'support/database_helpers.rb'
 
