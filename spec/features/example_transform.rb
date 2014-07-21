@@ -3,12 +3,12 @@ import :organisations do
     INSERT INTO #{stage_table} (
       name,
       external_id,
-      external_source,
+      external_source
     )
     SELECT
       o."Name",
       o."Name",
-      #{external_source}
+      '#{external_source}'
 
     FROM source."Organisation" o
   SQL
@@ -27,7 +27,7 @@ import :departments do
     SELECT
       o."Abteilung",
       #{combined_key('o."Name"', 'o."pkOrgId"')},
-      #{external_source},
+      '#{external_source}',
       o."Name"
 
     FROM source."Organisation" o

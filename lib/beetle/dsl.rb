@@ -3,7 +3,8 @@ module Beetle
 
     attr_reader :reference_config, :query_string
 
-    def initialize
+    def initialize(table_name)
+      @table_name = table_name
       @reference_config = {}
     end
 
@@ -13,6 +14,23 @@ module Beetle
 
     def query(query)
       @query_string = query
+    end
+
+
+    def stage_table
+      %Q("stage"."#{@table_name}")
+    end
+
+    def external_source
+      'source'
+    end
+
+    def combined_key(*args)
+      %Q('[' || #{args.join(%q[ || ',' || ])} || ']')
+    end
+
+    def import_run_id
+      1
     end
 
   end

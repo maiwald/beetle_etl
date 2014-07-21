@@ -7,7 +7,7 @@ module Beetle
 
     def initialize(table_name, setup)
       @table_name = table_name
-      (@parsed = DSL.new).instance_eval(&setup)
+      (@parsed = DSL.new(table_name)).instance_eval(&setup)
     end
 
     def references
