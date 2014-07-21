@@ -11,17 +11,31 @@ module Beetle
     attr_accessor \
       :database_config,
       :database,
-      :transformation_file
+      :transformation_file,
+      :import_run_id,
+      :stage_schema,
+      :external_source
+
+    def initialize
+      @stage_schema = 'stage'
+    end
   end
 
   class << self
 
     def import(config)
-      transformations = TransformationLoader.load(config.transformation_file)
-      ordered_transformations = DependencyResolver.resolve(transformations)
-      ordered_transformations.each do |transformation|
-        config.database.run(transformation.query)
-      end
+      @config = config
+    end
+
+    def config
+      @config ||= Configuration.new
+    end
+
+    private
+
+    def transformations
+      transformations = TransformationLoader.load
+      DependencyResolver.resolve(transformations)
     end
 
   end

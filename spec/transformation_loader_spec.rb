@@ -5,7 +5,7 @@ module Beetle
   describe TransformationLoader do
 
     before do
-      @data_file = tempfile_with_contents <<-FILE
+      data_file = tempfile_with_contents <<-FILE
         import :foo do
           'foo'
         end
@@ -14,6 +14,8 @@ module Beetle
           'bar'
         end
       FILE
+
+      allow(Beetle.config).to receive(:transformation_file) { data_file.path }
     end
 
     describe '#load' do
@@ -22,7 +24,7 @@ module Beetle
           expect(table_name.to_s).to eql(config.call)
         end.exactly(2).times
 
-        subject.load(@data_file.path)
+        subject.load
       end
 
       it 'adds every runlist entry to the entries array' do
@@ -30,7 +32,7 @@ module Beetle
           table_name
         end
 
-        transformations = subject.load(@data_file.path)
+        transformations = subject.load
 
         expect(transformations).to eql(%i[foo bar])
       end

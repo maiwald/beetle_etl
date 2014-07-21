@@ -2,10 +2,10 @@ module Beetle
   module TransformationLoader
     extend self
 
-    def load(data_file)
+    def load
       @transformations = []
 
-      File.open(data_file, 'r') do |file|
+      File.open(Beetle.config.transformation_file, 'r') do |file|
         instance_eval file.read
       end
 

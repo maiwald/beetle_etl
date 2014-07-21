@@ -6,6 +6,10 @@ module Beetle
     subject { DSL.new(:foo_table) }
 
     describe '#stage_table' do
+      before do
+        allow(Beetle.config).to receive(:stage_schema) { 'stage' }
+      end
+
       it 'returns the stage table name including the schema' do
         expect(subject.stage_table).to eql('"stage"."foo_table"')
       end
@@ -32,8 +36,14 @@ module Beetle
     end
 
     describe '#import_run_id' do
-      it 'returns simply 1 right now' do
-        expect(subject.import_run_id).to eql(1)
+      let(:id) { double(:id) }
+
+      before do
+        allow(Beetle.config).to receive(:import_run_id) { id }
+      end
+
+      it 'returns the import run id defined in the config' do
+        expect(subject.import_run_id).to eql(id)
       end
     end
 

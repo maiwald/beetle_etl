@@ -18,7 +18,7 @@ module Beetle
 
 
     def stage_table
-      %Q("stage"."#{@table_name}")
+      %Q("#{Beetle.config.stage_schema}"."#{@table_name}")
     end
 
     def external_source
@@ -30,7 +30,7 @@ module Beetle
     end
 
     def import_run_id
-      1
+      Beetle.config.import_run_id
     end
 
   end
