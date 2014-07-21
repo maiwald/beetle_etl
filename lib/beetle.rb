@@ -1,4 +1,4 @@
-require "beetle/version"
+require 'beetle/version'
 
 module Beetle
 
@@ -7,12 +7,22 @@ module Beetle
   require 'beetle/transformation_loader'
   require 'beetle/dependency_resolver'
 
-  extend self
-
-  def import(transformations_file)
-    transformations = TransformationLoader.load(transformations_file)
-    ordered_transformations = DependencyResolver.resolve(transformations)
-    ordered_transformations
+  class Configuration
+    attr_accessor \
+      :database_config,
+      :database,
+      :transformation_file
   end
 
+  class << self
+
+    def import(config)
+      transformations = TransformationLoader.load(config.transformation_file)
+      ordered_transformations = DependencyResolver.resolve(transformations)
+      ordered_transformations.each do |transformation|
+        config.database.run(transformation.query)
+      end
+    end
+
+  end
 end

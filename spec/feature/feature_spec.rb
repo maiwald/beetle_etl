@@ -1,5 +1,7 @@
 require 'spec_helper'
 require_relative 'example_schema'
+require 'yaml'
+
 
 describe Beetle do
 
@@ -12,13 +14,19 @@ describe Beetle do
   after { drop_tables }
 
   xit 'is a working', :feature do
+    insert_into('stage.import_runs').values([ :id ], [ 1 ])
+
     insert_into('source.Organisation').values(
       [ :pkOrgId , :Name   , :Abteilung ] ,
       [ 1        , 'Apple' , 'iPhone'   ] ,
       [ 2        , 'Apple' , 'MacBook'  ] ,
     )
 
-    Beetle.import File.expand_path('../example_transform.rb', __FILE__)
+    config = Beetle::Configuration.new
+    config.transformation_file = File.expand_path('../example_transform.rb', __FILE__)
+    config.database = test_database
+
+    Beetle.import(config)
 
     expect('public.organisations').to have_values(
       [ :id , :external_id , :external_source , :name   , :created_at , :deleted_at ] ,
