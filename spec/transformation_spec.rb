@@ -31,7 +31,7 @@ module Beetle
         end
         transformation = Transformation.new(:table, setup)
 
-        expect(transformation.dependencies).to eql([:foreign_table, :another_foreign_table])
+        expect(transformation.dependencies).to eql(Set.new([:foreign_table, :another_foreign_table]))
       end
     end
 

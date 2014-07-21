@@ -1,6 +1,5 @@
 module Beetle
   module TransformationLoader
-
     extend self
 
     def load(data_file)
@@ -20,5 +19,4 @@ module Beetle
     end
 
   end
-
 end

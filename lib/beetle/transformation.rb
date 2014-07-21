@@ -1,3 +1,5 @@
+require 'set'
+
 module Beetle
   class Transformation
 
@@ -13,15 +15,12 @@ module Beetle
     end
 
     def dependencies
-      @parsed.reference_config.values
+      @parsed.reference_config.values.to_set
     end
 
     def query
       @parsed.query_string
     end
-
-    private
-
 
   end
 end
