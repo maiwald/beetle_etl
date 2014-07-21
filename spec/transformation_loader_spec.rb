@@ -4,7 +4,7 @@ require 'tempfile'
 module Beetle
   describe TransformationLoader do
 
-    before do
+    before :example do
       data_file = tempfile_with_contents <<-FILE
         import :foo do
           'foo'
@@ -15,7 +15,9 @@ module Beetle
         end
       FILE
 
-      allow(Beetle.config).to receive(:transformation_file) { data_file.path }
+      Beetle.configure do |config|
+        config.transformation_file = data_file.path
+      end
     end
 
     describe '#load' do

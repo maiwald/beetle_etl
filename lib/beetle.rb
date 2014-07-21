@@ -23,12 +23,15 @@ module Beetle
 
   class << self
 
-    def import(config)
-      @config = config
-    end
-
     def config
       @config ||= Configuration.new
+    end
+
+    def configure
+      yield(config)
+    end
+
+    def import
     end
 
     private
