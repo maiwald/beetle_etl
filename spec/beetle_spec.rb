@@ -1,6 +1,36 @@
 require 'spec_helper'
 
 describe Beetle do
+  describe '#import' do
+
+    it 'runs the import' do
+      allow(Beetle).to receive(:state) { double(:state).as_null_object }
+      expect(Beetle::Import).to receive(:run)
+      Beetle.import
+    end
+
+    context 'handling state' do
+      it 'starts the import and marks it as finished if no errors are thrown' do
+        allow(Beetle::Import).to receive(:run)
+
+        expect(Beetle.state).to receive(:start_import).ordered
+        expect(Beetle.state).to receive(:mark_as_succeeded).ordered
+
+        Beetle.import
+      end
+
+      it 'starts the import and marks it as failed if Import.run throws an error' do
+        exception = Exception.new
+        allow(Beetle::Import).to receive(:run).and_raise(exception)
+
+        expect(Beetle.state).to receive(:start_import).ordered
+        expect(Beetle.state).to receive(:mark_as_failed).ordered
+
+        expect { Beetle.import }.to raise_exception(exception)
+      end
+    end
+  end
+
   describe '#config' do
     it 'returns a configuration object' do
       expect(Beetle.config).to be_a(Beetle::Configuration)

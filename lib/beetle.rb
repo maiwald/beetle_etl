@@ -7,6 +7,7 @@ module Beetle
   require 'beetle/transformation'
   require 'beetle/transformation_loader'
   require 'beetle/dependency_resolver'
+  require 'beetle/import'
 
   class Configuration
     attr_accessor \
@@ -23,18 +24,17 @@ module Beetle
 
   class << self
 
-    #def import
-      #state.start_import
+    def import
+      state.start_import
 
-      #begin
-        #state.mark_as_succeeded
-      #rescue Exception => e
-        #state.mark_as_failed
-        #raise e
-      #ensure
-        #@database.disconnect if @database
-      #end
-    #end
+      begin
+        Import.run
+        state.mark_as_succeeded
+      rescue Exception => e
+        state.mark_as_failed
+        raise e
+      end
+    end
 
     def configure
       yield(config)
