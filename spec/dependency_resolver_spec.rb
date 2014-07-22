@@ -3,38 +3,53 @@ require 'spec_helper'
 module Beetle
   describe DependencyResolver do
 
+    # test dependencies
+    #
+    #     A
+    #   / | \
+    #  B  |  C
+    #  |  \ /|
+    #  |   D |
+    #   \ / \|
+    #    E   F
+
     TransformationDouble = Struct.new(:table_name, :dependencies)
 
-    let(:t1) { TransformationDouble.new(:foo, Set.new) }
-    let(:t2) { TransformationDouble.new(:bar, Set.new([:foo])) }
-    let(:t3) { TransformationDouble.new(:abc, Set.new([:bar])) }
-    let(:t4) { TransformationDouble.new(:baz, Set.new([:foo, :bar])) }
+    let(:a) { TransformationDouble.new(:a, Set.new) }
+    let(:b) { TransformationDouble.new(:b, Set.new([:a])) }
+    let(:c) { TransformationDouble.new(:c, Set.new([:a])) }
+    let(:d) { TransformationDouble.new(:d, Set.new([:a, :c])) }
+    let(:e) { TransformationDouble.new(:e, Set.new([:c, :d])) }
+    let(:f) { TransformationDouble.new(:f, Set.new([:c, :d])) }
 
-    let(:cyclic) { TransformationDouble.new(:foo, Set.new([:bar])) }
-    let(:transitive_cyclic) { TransformationDouble.new(:foo, Set.new([:abc])) }
+    describe '#resolved' do
+      it 'returns an empty array if given an empty array' do
+        expect(DependencyResolver.new([]).resolved).to eql([])
+      end
 
-    it 'returns an empty array if given an empty array' do
-      expect(DependencyResolver.resolve([])).to eql([])
+      it 'orderes transformations by their dependencies' do
+        result = DependencyResolver.new([b, e, c, f, a, d]).resolved
+        expect(result).to eql([a, b, c, d, e, f])
+      end
     end
 
-    it 'orderes transformations by their dependencies' do
-      result = DependencyResolver.resolve([t3, t1, t4, t2])
-      expect(result).to eql([t1, t2, t3, t4])
+    describe '#resolved_in_tiers' do
+      it 'returns arrays of items that can run un parallel' do
+        result = DependencyResolver.new([b, e, c, f, a, d]).resolved_in_tiers
+        expect(result).to eql([[a], [b, c], [d], [e, f]])
+      end
     end
 
     context 'exceptional states' do
-      it 'detects cyclic dependencies' do
-        expect { DependencyResolver.resolve([cyclic, t2]) }.to \
-          raise_error(Beetle::UnsatisfiableDependenciesError)
-      end
+      let(:cyclic) { TransformationDouble.new(:a, Set.new([:b])) }
 
-      it 'detects transitive cyclic dependencies' do
-        expect { DependencyResolver.resolve([t2, transitive_cyclic, t3]) }.to \
+      it 'detects cyclic dependencies' do
+        expect { DependencyResolver.new([cyclic, b]) }.to \
           raise_error(Beetle::UnsatisfiableDependenciesError)
       end
 
       it 'detects unsatisfiable dependencies' do
-        expect { DependencyResolver.resolve([t2]) }.to \
+        expect { DependencyResolver.new([b]) }.to \
           raise_error(Beetle::UnsatisfiableDependenciesError)
       end
     end

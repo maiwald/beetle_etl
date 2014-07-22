@@ -2,15 +2,14 @@ module Beetle
 
   UnsatisfiableDependenciesError = Class.new(StandardError)
 
-  module DependencyResolver
-    extend self
+  class DependencyResolver
 
-    def resolve (items)
+    def initialize(items)
       items = items.dup
-      resolved = []
+      @resolved = []
 
       while not items.empty?
-        resolved_names = resolved.map(&:table_name).to_set
+        resolved_names = resolved.flatten.map(&:table_name).to_set
 
         resolvable = items.select do |item|
           item.dependencies.subset?(resolved_names) || item.dependencies.empty?
@@ -19,10 +18,16 @@ module Beetle
         raise UnsatisfiableDependenciesError if resolvable.empty?
 
         resolvable.each { |r| items.delete r }
-        resolved += resolvable
+        @resolved << resolvable
       end
+    end
 
-      return resolved
+    def resolved
+      @resolved.flatten
+    end
+
+    def resolved_in_tiers
+      @resolved
     end
 
   end
