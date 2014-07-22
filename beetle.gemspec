@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.version       = Beetle::VERSION
   spec.authors       = ["Luciano Maiwald"]
   spec.email         = ["luciano.maiwald@gmail.com"]
-  spec.summary       = %q{Beetle helps you with your ETL import.}
+  spec.summary       = %q{Beetle helps you with your recurring ETL imports.}
   spec.description   = %q{Taking care of synchronizing external data with referential data in your application.}
   spec.homepage      = "https://github.com/maiwald/beetle"
   spec.license       = "MIT"
