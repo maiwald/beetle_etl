@@ -22,11 +22,12 @@ describe Beetle do
       [ 2        , 'Apple' , 'MacBook'  ] ,
     )
 
-    config = Beetle::Configuration.new
-    config.transformation_file = File.expand_path('../example_transform.rb', __FILE__)
-    config.database = test_database
+    Beetle.configure do |config|
+      config.transformation_file = File.expand_path('../example_transform.rb', __FILE__)
+      config.database = test_database
+    end
 
-    Beetle.import(config)
+    Beetle.import
 
     expect('public.organisations').to have_values(
       [ :id , :external_id , :external_source , :name   , :created_at , :deleted_at ] ,

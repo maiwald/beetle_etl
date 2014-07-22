@@ -30,7 +30,7 @@ module Beetle
     end
 
     def import_run_id
-      Beetle.config.import_run_id
+      Beetle.state.import_run_id
     end
 
   end

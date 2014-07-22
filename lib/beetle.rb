@@ -2,6 +2,7 @@ require 'beetle/version'
 
 module Beetle
 
+  require 'beetle/state'
   require 'beetle/dsl'
   require 'beetle/transformation'
   require 'beetle/transformation_loader'
@@ -12,7 +13,6 @@ module Beetle
       :database_config,
       :database,
       :transformation_file,
-      :import_run_id,
       :stage_schema,
       :external_source
 
@@ -23,22 +23,43 @@ module Beetle
 
   class << self
 
-    def config
-      @config ||= Configuration.new
-    end
+    #def import
+      #state.start_import
+
+      #begin
+        #state.mark_as_succeeded
+      #rescue Exception => e
+        #state.mark_as_failed
+        #raise e
+      #ensure
+        #@database.disconnect if @database
+      #end
+    #end
 
     def configure
       yield(config)
     end
 
-    def import
+    def config
+      @config ||= Configuration.new
     end
 
-    private
+    def database
+      if config.database
+        config.database
+      else
+        @database ||= Sequel.connect(config.database_config)
+      end
+    end
 
-    def transformations
-      transformations = TransformationLoader.load
-      DependencyResolver.resolve(transformations)
+    def state
+      @state ||= State.new
+    end
+
+    def reset
+      @config = nil
+      @state = nil
+      @database = nil
     end
 
   end

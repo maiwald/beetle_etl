@@ -1,6 +1,6 @@
 module Beetle
 
-  UnsatisfiableDependenciesError = Class.new(RuntimeError)
+  UnsatisfiableDependenciesError = Class.new(StandardError)
 
   module DependencyResolver
     extend self

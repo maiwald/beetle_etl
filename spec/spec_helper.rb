@@ -10,6 +10,7 @@ RSpec.configure do |config|
   config.backtrace_exclusion_patterns = [/rspec-core/]
 
   config.around(:each) do |example|
+    Beetle.reset
     if example.metadata[:feature]
       example.run
     else

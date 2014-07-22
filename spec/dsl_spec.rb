@@ -35,7 +35,7 @@ module Beetle
     describe '#import_run_id' do
       it 'returns the import run id defined in the config' do
         id = double(:id)
-        Beetle.configure { |config| config.import_run_id = id }
+        allow(Beetle.state).to receive(:import_run_id) { id }
         expect(subject.import_run_id).to eql(id)
       end
     end
