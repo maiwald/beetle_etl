@@ -2,6 +2,8 @@ require 'beetle/version'
 
 module Beetle
 
+  InvalidConfigurationError = Class.new(StandardError)
+
   require 'beetle/state'
   require 'beetle/dsl'
   require 'beetle/transformation'
@@ -51,8 +53,11 @@ module Beetle
     def database
       if config.database
         config.database
-      else
+      elsif config.database_config
         @database ||= Sequel.connect(config.database_config)
+      else
+        msg = "Either Sequel connection database_config or a Sequel Database object required"
+        raise InvalidConfigurationError.new(msg)
       end
     end
 
