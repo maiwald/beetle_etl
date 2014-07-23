@@ -27,10 +27,8 @@ module SpecSupport
       end
     end
 
-    def insert_into(table_desc)
-      schema, table = table_desc.split('.')
-      dataset = test_database["#{schema}__#{table}".to_sym]
-
+    def insert_into(table_description)
+      dataset = test_database[table_description]
       Test::Table.new(dataset)
     end
 
@@ -38,9 +36,8 @@ module SpecSupport
 end
 
 RSpec::Matchers.define :have_values do |*rows|
-  match do |table_desc|
-    schema, table = table_desc.split('.')
-    dataset = test_database[:"#{schema}__#{table}"]
+  match do |table_description|
+    dataset = test_database[table_description]
 
     columns = rows[0].map(&:to_sym)
     values = rows[1..-1]

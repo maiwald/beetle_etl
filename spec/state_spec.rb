@@ -30,14 +30,14 @@ module Beetle
 
         subject.start_import
 
-        expect('stage.import_runs').to have_values(
+        expect(:stage__import_runs).to have_values(
           [ :id , :state    , :started_at , :finished_at ] ,
           [ 1   , 'RUNNING' , now         , nil          ]
         )
       end
 
       it 'raises an exception if there is alreay an import marked as running' do
-        insert_into('stage.import_runs').values(
+        insert_into(:stage__import_runs).values(
           [ :id , :state    , :started_at , :finished_at ] ,
           [ 1   , 'RUNNING' , now         , nil          ]
         )
@@ -48,7 +48,7 @@ module Beetle
 
     context 'run ids' do
       before do
-        insert_into('stage.import_runs').values(
+        insert_into(:stage__import_runs).values(
           [ :state      , :started_at , :finished_at ] ,
           [ 'FAILED'    , 8.days.ago  , 7.days.ago   ] ,
           [ 'SUCCEEDED' , 6.days.ago  , 5.day.ago    ] ,
@@ -88,7 +88,7 @@ module Beetle
       let(:one_day_ago) { 1.day.ago.beginning_of_day }
 
       before do
-        insert_into('stage.import_runs').values(
+        insert_into(:stage__import_runs).values(
           [ :state      , :started_at , :finished_at ] ,
           [ 'SUCCEEDED' , 2.days.ago  , one_day_ago  ] ,
         )
@@ -100,7 +100,7 @@ module Beetle
         it 'marks the current import as FAILED' do
           subject.mark_as_failed
 
-          expect('stage.import_runs').to have_values(
+          expect(:stage__import_runs).to have_values(
             [ :id , :state      , :finished_at ] ,
             [ 1   , 'SUCCEEDED' , one_day_ago  ] ,
             [ 2   , 'FAILED'    , now          ] ,
@@ -112,7 +112,7 @@ module Beetle
         it 'marks the current import as SUCCEEDED' do
           subject.mark_as_succeeded
 
-          expect('stage.import_runs').to have_values(
+          expect(:stage__import_runs).to have_values(
             [ :id , :state      , :finished_at ] ,
             [ 1   , 'SUCCEEDED' , one_day_ago  ] ,
             [ 2   , 'SUCCEEDED' , now          ] ,

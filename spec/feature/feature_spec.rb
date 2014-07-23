@@ -14,9 +14,9 @@ describe Beetle do
   after { drop_tables }
 
   xit 'is a working', :feature do
-    insert_into('stage.import_runs').values([ :id ], [ 1 ])
+    insert_into(:stage__import_runs).values([ :id ], [ 1 ])
 
-    insert_into('source.Organisation').values(
+    insert_into(:source__Organisation).values(
       [ :pkOrgId , :Name   , :Abteilung ] ,
       [ 1        , 'Apple' , 'iPhone'   ] ,
       [ 2        , 'Apple' , 'MacBook'  ] ,
@@ -29,12 +29,12 @@ describe Beetle do
 
     Beetle.import
 
-    expect('public.organisations').to have_values(
+    expect(:public__organisations).to have_values(
       [ :id , :external_id , :external_source , :name   , :created_at , :deleted_at ] ,
       [ 1   , 'Apple'      , 'source_name'    , 'Apple' , now         , nil         ]
     )
 
-    expect('public.departments').to have_values(
+    expect(:public__departments).to have_values(
       [ :id , :external_id , :external_source , :name     , :organisation_id , :created_at , :deleted_at ] ,
       [ 1   , '[apple-1]'  , 'source_name'    , 'iPhone'  , 1                , now         , nil         ] ,
       [ 2   , '[apple-2]'  , 'source_name'    , 'MacBook' , 1                , now         , nil         ] ,
