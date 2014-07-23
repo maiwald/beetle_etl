@@ -1,35 +1,100 @@
 module Beetle
   class TableDiff
 
-    def initialize(transformation)
-      @transformation = transformation
+    IMPORTER_COLUMNS = %i[
+      import_run_id
+      external_id
+      external_source
+      transition
+    ]
+
+    attr_reader :table_name
+
+    def initialize(table_name)
+      @table_name = table_name
     end
 
     def transition_create
-      database[:"stage__#{table_name}___new_record"]
-        .where(
-          new_record__import_run_id: run_id,
+      stage_table.where(
+        stage__import_run_id: run_id,
+      )
+      .where(Sequel.~(public_table.where(
+          public__external_id: :stage__external_id,
+          public__external_source: :stage__external_source,
         )
-        .where(Sequel.~(database[:"#{table_name}___old_record"].where(
-            old_record__external_id: :new_record__external_id,
-            old_record__external_source: :new_record__external_source,
-          )
-          .exists))
-        .update(transition: 'CREATE')
+        .exists))
+      .update(transition: 'CREATE')
+    end
+
+    def transition_keep
+      stage_table.where(
+        stage__import_run_id: run_id,
+      )
+      .where(
+        public_table.where(
+          public__external_id: :stage__external_id,
+          public__external_source: :stage__external_source,
+        )
+        .where(
+          ':public_columns IS NOT DISTINCT FROM :stage_columns',
+          public_columns: public_record_columns,
+          stage_columns: stage_record_columns,
+        )
+        .exists)
+      .update(transition: 'KEEP')
     end
 
     private
+
+    def stage_table
+      @stage_table ||= database[:"stage__#{table_name}___stage"]
+    end
+
+    def public_table
+      @public_table ||= database[:"#{table_name}___public"]
+    end
+
+    def public_record_columns
+      prefixed_columns(data_columns, 'public')
+    end
+
+    def stage_record_columns
+      prefixed_columns(data_columns, 'stage')
+    end
+
+    def data_columns
+      table_columns - ignored_columns
+    end
+
+    def table_columns
+      @table_columns ||= database[:"#{stage_schema}__#{table_name}"].columns
+    end
+
+    def ignored_columns
+      importer_columns + [:id] + table_columns.select do |column_name|
+        column_name.to_s.index(/^external_(.*)_id$/)
+      end
+    end
+
+    def importer_columns
+      IMPORTER_COLUMNS
+    end
+
+    def prefixed_columns(columns, prefix)
+      columns.map { |column| "#{prefix}__#{column}".to_sym }
+    end
+
 
     def run_id
       Beetle.state.run_id
     end
 
-    def database
-      Beetle.database
+    def stage_schema
+      Beetle.config.stage_schema
     end
 
-    def table_name
-      @transformation.table_name
+    def database
+      Beetle.database
     end
 
   end
