@@ -33,6 +33,8 @@ module Beetle
       rescue Exception => e
         state.mark_as_failed
         raise e
+      ensure
+        @database.disconnect if @database
       end
     end
 
