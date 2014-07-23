@@ -7,6 +7,8 @@ module Beetle
   require 'beetle/transformation'
   require 'beetle/transformation_loader'
   require 'beetle/dependency_resolver'
+
+  require 'beetle/transform/table_diff'
   require 'beetle/import'
 
   class Configuration
