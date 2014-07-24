@@ -34,6 +34,7 @@ module Beetle
         public_table.where(
           public__external_id: :stage__external_id,
           public__external_source: :stage__external_source,
+          public__deleted_at: nil,
         )
         .where(
           ':public_columns IS NOT DISTINCT FROM :stage_columns',
@@ -44,10 +45,75 @@ module Beetle
       .update(transition: 'KEEP')
     end
 
+    def transition_update
+      stage_table.where(
+        stage__import_run_id: run_id,
+      )
+      .where(
+        public_table.where(
+          public__external_id: :stage__external_id,
+          public__external_source: :stage__external_source,
+          public__deleted_at: nil,
+        )
+        .where(
+          ':public_columns IS DISTINCT FROM :stage_columns',
+          public_columns: public_record_columns,
+          stage_columns: stage_record_columns,
+        )
+        .exists)
+      .update(transition: 'UPDATE')
+    end
+
+    def transition_delete
+      deleted_dataset = database.from(
+        :"#{stage_schema}__#{table_name}___stage",
+      ).right_join(
+        :"#{table_name}___public",
+        public__external_id: :stage__external_id,
+        public__external_source: :stage__external_source,
+      ).where(
+        stage__external_id: nil,
+        public__deleted_at: nil
+      )
+
+      database[:"#{stage_schema}__#{table_name}"]
+        .import(
+          [
+            :import_run_id,
+            :external_id,
+            :external_source,
+            :transition
+          ],
+          deleted_dataset
+            .select(
+              run_id,
+              :public__external_id,
+              :public__external_source,
+              'DELETE'
+            )
+        )
+    end
+
+    def transition_undelete
+      stage_table.where(
+        stage__import_run_id: run_id,
+      )
+      .where(
+        public_table.where(
+          public__external_id: :stage__external_id,
+          public__external_source: :stage__external_source,
+        )
+        .exclude(
+          public__deleted_at: nil
+        )
+        .exists)
+      .update(transition: 'UNDELETE')
+    end
+
     private
 
     def stage_table
-      @stage_table ||= database[:"stage__#{table_name}___stage"]
+      @stage_table ||= database[:"#{stage_schema}__#{table_name}___stage"]
     end
 
     def public_table
