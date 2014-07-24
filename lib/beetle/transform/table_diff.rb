@@ -14,6 +14,12 @@ module Beetle
       @table_name = table_name
     end
 
+    def run
+      %w(create keep update delete undelete).each do |transition|
+        public_send(:"transition_#{transition}")
+      end
+    end
+
     def transition_create
       stage_table.where(
         stage__import_run_id: run_id,

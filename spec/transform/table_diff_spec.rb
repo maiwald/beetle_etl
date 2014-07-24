@@ -8,9 +8,17 @@ module Beetle
 
     let(:run_id) { 1 }
     let(:external_source) { 'my_source' }
-    subject { TableDiff.new('example_table') }
+    subject { TableDiff.new(:example_table) }
 
     before do
+      Beetle.configure do |config|
+        config.stage_schema = 'stage'
+        config.external_source = 'my_source'
+        config.database = test_database
+      end
+
+      allow(Beetle).to receive(:state) { double(:state, run_id: run_id) }
+
       test_database.create_schema(:stage)
       test_database.create_table(:stage__example_table) do
         Integer :import_run_id
@@ -37,14 +45,16 @@ module Beetle
         String :ignored_attribute, size: 255
         Integer :foo_id
       end
+    end
 
-      Beetle.configure do |config|
-        config.stage_schema = 'stage'
-        config.external_source = 'my_source'
-        config.database = test_database
+    describe '#run' do
+      it 'runs all transitions' do
+        %w(create keep update delete undelete).each do |transition|
+          expect(subject).to receive(:"transition_#{transition}")
+        end
+
+        subject.run
       end
-
-      allow(Beetle).to receive(:state) { double(:state, run_id: run_id) }
     end
 
     describe '#transition_create' do
