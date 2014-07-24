@@ -58,9 +58,8 @@ module ExampleSchema
     test_database.create_table :stage__organisations do
       Integer :id
       String :external_id, size: 255
-      String :external_source, size: 255
       foreign_key :import_run_id, :stage__import_runs
-      index [:external_id, :external_source, :import_run_id]
+      index [:external_id, :import_run_id]
       String :transition, size: 255
 
       String :name, size: 255
@@ -69,9 +68,8 @@ module ExampleSchema
     test_database.create_table :stage__departments do
       Integer :id
       String :external_id, size: 255
-      String :external_source, size: 255
       foreign_key :import_run_id, :stage__import_runs
-      index [:external_id, :external_source, :import_run_id]
+      index [:external_id, :import_run_id]
       String :transition, size: 255
 
       String :name, size: 255
@@ -84,9 +82,8 @@ module ExampleSchema
     test_database.create_table :stage__attendees do
       Integer :id
       String :external_id, size: 255
-      String :external_source, size: 255
       foreign_key :import_run_id, :stage__import_runs
-      index [:external_id, :external_source, :import_run_id]
+      index [:external_id, :import_run_id]
       String :transition, size: 255
 
       String :first_name, size: 255
@@ -96,9 +93,8 @@ module ExampleSchema
     test_database.create_table :stage__events do
       Integer :id
       String :external_id, size: 255
-      String :external_source, size: 255
       foreign_key :import_run_id, :stage__import_runs
-      index [:external_id, :external_source, :import_run_id]
+      index [:external_id, :import_run_id]
       String :transition, size: 255
 
       String :name, size: 255
@@ -112,9 +108,8 @@ module ExampleSchema
     test_database.create_table :stage__attendees_events do
       Integer :id
       String :external_id, size: 255
-      String :external_source, size: 255
       foreign_key :import_run_id, :stage__import_runs
-      index [:external_id, :external_source, :import_run_id]
+      index [:external_id, :import_run_id]
       String :transition, size: 255
 
       String :external_attendee_id, size: 255

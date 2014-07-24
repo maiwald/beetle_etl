@@ -5,9 +5,6 @@ module Beetle
 
     let(:run_id) { 1 }
     let(:previous_run_id) { 5000 }
-    let(:external_source) { 'my_source' }
-
-
 
     before do
       Beetle.configure do |config|
@@ -23,26 +20,20 @@ module Beetle
         Integer :import_run_id
         Integer :id
         String :external_id, size: 255
-        String :external_source, size: 255
-        index [:import_run_id, :external_id, :external_source], unique: true
-        index [:external_id, :external_source]
+        index [:external_id, :import_run_id], unique: true
       end
 
       test_database.create_table(:stage__dependee_b) do
         Integer :import_run_id
         Integer :id
         String :external_id, size: 255
-        String :external_source, size: 255
-        index [:import_run_id, :external_id, :external_source], unique: true
-        index [:external_id, :external_source]
+        index [:external_id, :import_run_id], unique: true
       end
 
       test_database.create_table(:stage__depender) do
         Integer :import_run_id
         String :external_id, size: 255
-        String :external_source, size: 255
-        index [:import_run_id, :external_id, :external_source], unique: true
-        index [:external_id, :external_source]
+        index [:external_id, :import_run_id], unique: true
 
         String :external_dependee_a_id
         Integer :dependee_a_id
@@ -55,19 +46,19 @@ module Beetle
     describe '#run' do
       it 'maps external foreign key references to id references ' do
         insert_into(:stage__dependee_a).values(
-          [ :import_run_id  , :id , :external_id , :external_source ] ,
-          [ run_id          , 1   , 'a_id'       , external_source  ] ,
-          [ previous_run_id , 2   , 'a_id'       , external_source  ] ,
+          [ :import_run_id  , :id , :external_id ] ,
+          [ run_id          , 1   , 'a_id'       ] ,
+          [ previous_run_id , 2   , 'a_id'       ] ,
         )
 
         insert_into(:stage__dependee_b).values(
-          [ :import_run_id , :id , :external_id , :external_source ] ,
-          [ run_id         , 26  , 'b_id'       , external_source  ] ,
+          [ :import_run_id , :id , :external_id ] ,
+          [ run_id         , 26  , 'b_id'       ] ,
         )
 
         insert_into(:stage__depender).values(
-          [ :import_run_id , :external_source , :external_dependee_a_id , :external_dependee_b_id ] ,
-          [ run_id         , external_source  , 'a_id'                  , 'b_id'                  ] ,
+          [ :import_run_id , :external_dependee_a_id , :external_dependee_b_id ] ,
+          [ run_id         , 'a_id'                  , 'b_id'                  ] ,
         )
 
         dependencies = {
@@ -78,8 +69,8 @@ module Beetle
         MapRelations.new(:depender, dependencies).run
 
         expect(:stage__depender).to have_values(
-          [ :import_run_id , :external_source , :dependee_a_id , :dependee_b_id ] ,
-          [ run_id         , external_source  , 1              , 26             ] ,
+          [ :import_run_id , :dependee_a_id , :dependee_b_id ] ,
+          [ run_id         , 1              , 26             ] ,
         )
       end
     end

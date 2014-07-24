@@ -16,7 +16,6 @@ module Beetle
         ).where(
           ST__import_run_id: run_id,
           FT__import_run_id: run_id,
-          FT__external_source: :ST__external_source,
           FT__external_id: :"ST__external_#{foreign_key_column}",
         ).update(
           :"#{foreign_key_column}" => :"FT__id"

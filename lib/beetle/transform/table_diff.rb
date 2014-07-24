@@ -4,7 +4,6 @@ module Beetle
     IMPORTER_COLUMNS = %i[
       import_run_id
       external_id
-      external_source
       transition
     ]
 
@@ -26,7 +25,7 @@ module Beetle
       )
       .where(Sequel.~(public_table.where(
           public__external_id: :stage__external_id,
-          public__external_source: :stage__external_source,
+          public__external_source: external_source,
         )
         .exists))
       .update(transition: 'CREATE')
@@ -39,7 +38,7 @@ module Beetle
       .where(
         public_table.where(
           public__external_id: :stage__external_id,
-          public__external_source: :stage__external_source,
+          public__external_source: external_source,
           public__deleted_at: nil,
         )
         .where(
@@ -58,7 +57,7 @@ module Beetle
       .where(
         public_table.where(
           public__external_id: :stage__external_id,
-          public__external_source: :stage__external_source,
+          public__external_source: external_source,
           public__deleted_at: nil,
         )
         .where(
@@ -76,7 +75,7 @@ module Beetle
       ).right_join(
         :"#{table_name}___public",
         public__external_id: :stage__external_id,
-        public__external_source: :stage__external_source,
+        public__external_source: external_source,
       ).where(
         stage__external_id: nil,
         public__deleted_at: nil
@@ -87,14 +86,12 @@ module Beetle
           [
             :import_run_id,
             :external_id,
-            :external_source,
             :transition
           ],
           deleted_dataset
             .select(
               run_id,
               :public__external_id,
-              :public__external_source,
               'DELETE'
             )
         )
@@ -107,7 +104,7 @@ module Beetle
       .where(
         public_table.where(
           public__external_id: :stage__external_id,
-          public__external_source: :stage__external_source,
+          public__external_source: external_source,
         )
         .exclude(
           public__deleted_at: nil
@@ -163,6 +160,10 @@ module Beetle
 
     def stage_schema
       Beetle.config.stage_schema
+    end
+
+    def external_source
+      Beetle.config.external_source
     end
 
     def database
