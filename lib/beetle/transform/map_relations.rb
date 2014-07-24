@@ -1,6 +1,8 @@
 module Beetle
   class MapRelations
 
+    include CommonHelpers
+
     attr_reader :table_name, :dependencies
 
     def initialize(table_name, dependencies)
@@ -21,20 +23,6 @@ module Beetle
           :"#{foreign_key_column}" => :"FT__id"
         )
       end
-    end
-
-    private
-
-    def run_id
-      Beetle.state.run_id
-    end
-
-    def stage_schema
-      Beetle.config.stage_schema
-    end
-
-    def database
-      Beetle.database
     end
 
   end

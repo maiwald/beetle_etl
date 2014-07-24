@@ -1,6 +1,8 @@
 module Beetle
   class TableDiff
 
+    include CommonHelpers
+
     IMPORTER_COLUMNS = %i[
       import_run_id
       external_id
@@ -151,23 +153,6 @@ module Beetle
 
     def prefixed_columns(columns, prefix)
       columns.map { |column| "#{prefix}__#{column}".to_sym }
-    end
-
-
-    def run_id
-      Beetle.state.run_id
-    end
-
-    def stage_schema
-      Beetle.config.stage_schema
-    end
-
-    def external_source
-      Beetle.config.external_source
-    end
-
-    def database
-      Beetle.database
     end
 
   end
