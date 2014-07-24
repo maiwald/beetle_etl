@@ -4,7 +4,6 @@ module Beetle
 
   InvalidConfigurationError = Class.new(StandardError)
 
-
   require 'beetle/common_helpers'
   require 'beetle/dependency_resolver'
 
@@ -14,6 +13,7 @@ module Beetle
 
   require 'beetle/transform/map_relations'
   require 'beetle/transform/table_diff'
+  require 'beetle/transform/assign_ids'
 
   require 'beetle/import'
   require 'beetle/state'
