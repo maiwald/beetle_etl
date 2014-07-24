@@ -20,20 +20,17 @@ module Beetle
         Integer :import_run_id
         Integer :id
         String :external_id, size: 255
-        index [:external_id, :import_run_id], unique: true
       end
 
       test_database.create_table(:stage__dependee_b) do
         Integer :import_run_id
         Integer :id
         String :external_id, size: 255
-        index [:external_id, :import_run_id], unique: true
       end
 
       test_database.create_table(:stage__depender) do
         Integer :import_run_id
         String :external_id, size: 255
-        index [:external_id, :import_run_id], unique: true
 
         String :external_dependee_a_id
         Integer :dependee_a_id

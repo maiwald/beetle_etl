@@ -24,7 +24,6 @@ module Beetle
         Integer :import_run_id
         String :external_id, size: 255
         String :transition, size: 20
-        index [:external_id, :import_run_id], unique: true
 
         String :external_foo_id, size: 255
         Integer :foo_id
@@ -36,7 +35,6 @@ module Beetle
         Integer :id
         String :external_id, size: 255
         String :external_source, size: 255
-        index [:external_id, :external_source], unique: true
         DateTime :deleted_at
 
         String :payload, size: 255
