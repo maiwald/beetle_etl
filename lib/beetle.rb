@@ -10,6 +10,7 @@ module Beetle
   require 'beetle/transformation_loader'
   require 'beetle/dependency_resolver'
 
+  require 'beetle/transform/map_relations'
   require 'beetle/transform/table_diff'
   require 'beetle/import'
 
