@@ -2,14 +2,12 @@ import :organisations do
   query <<-SQL
     INSERT INTO #{stage_table} (
       external_id,
-      external_source,
       import_run_id,
       name
     )
 
     SELECT DISTINCT
       o."Name",
-      '#{external_source}',
       #{import_run_id},
       o."Name"
 
@@ -23,7 +21,6 @@ import :departments do
   query <<-SQL
     INSERT INTO #{stage_table} (
       external_id,
-      external_source,
       import_run_id,
       name,
       external_organisation_id
@@ -31,10 +28,9 @@ import :departments do
 
     SELECT
       #{combined_key('o."Name"', 'o."pkOrgId"')},
-      '#{external_source}',
       #{import_run_id},
-      o."Name",
-      o."Abteilung"
+      o."Abteilung",
+      o."Name"
 
     FROM source."Organisation" o
   SQL

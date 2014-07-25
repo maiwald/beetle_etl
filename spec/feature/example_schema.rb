@@ -131,6 +131,7 @@ module ExampleSchema
       String :external_source, size: 255
       String :name, size: 255
       DateTime :created_at
+      DateTime :updated_at
       DateTime :deleted_at
     end
 
@@ -141,6 +142,7 @@ module ExampleSchema
       String :name, size: 255
       foreign_key :organisation_id, :organisations
       DateTime :created_at
+      DateTime :updated_at
       DateTime :deleted_at
     end
 
@@ -151,6 +153,7 @@ module ExampleSchema
       String :first_name, size: 255
       String :last_name, size: 255
       DateTime :created_at
+      DateTime :updated_at
       DateTime :deleted_at
     end
 
@@ -163,6 +166,7 @@ module ExampleSchema
       DateTime :ends_at
       foreign_key :organisation, :organisations
       DateTime :created_at
+      DateTime :updated_at
       DateTime :deleted_at
     end
 
@@ -171,6 +175,9 @@ module ExampleSchema
       foreign_key :event_id, :events, null: false
       primary_key [:attendee_id, :event_id]
       index [:attendee_id, :event_id]
+      DateTime :created_at
+      DateTime :updated_at
+      DateTime :deleted_at
     end
   end
 
