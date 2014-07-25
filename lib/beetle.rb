@@ -15,6 +15,8 @@ module Beetle
   require 'beetle/transform/table_diff'
   require 'beetle/transform/assign_ids'
 
+  require 'beetle/load'
+
   require 'beetle/import'
   require 'beetle/state'
 
