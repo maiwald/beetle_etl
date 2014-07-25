@@ -99,7 +99,7 @@ module Beetle
     end
 
     def ignored_columns
-      IMPORTER_COLUMNS + [:id] + table_columns.select do |column_name|
+      IMPORTER_COLUMNS + table_columns.select do |column_name|
         column_name.to_s.index(/^external_.+_id$/)
       end
     end

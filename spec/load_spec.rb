@@ -66,15 +66,15 @@ module Beetle
       it 'loads records into the public table' do
         insert_into(:stage__example_table).values(
           [ :id , :import_run_id , :external_id  , :transition , :external_foo_id , :foo_id , :payload       ] ,
-          [ 1   , old_run_id     , 'external_id' , 'CREATE'    , 'foo_id'         , 999     , 'some content' ] ,
-          [ 1   , run_id         , 'external_id' , 'CREATE'    , 'foo_id'         , 22      , 'content'      ] ,
+          [ 3   , old_run_id     , 'external_id' , 'CREATE'    , 'foo_id'         , 999     , 'some content' ] ,
+          [ 3   , run_id         , 'external_id' , 'CREATE'    , 'foo_id'         , 22      , 'content'      ] ,
         )
 
         subject.load_create
 
         expect(:example_table).to have_values(
           [ :id , :external_id  , :external_source , :foo_id , :created_at , :updated_at , :deleted_at , :payload  ] ,
-          [ 1   , 'external_id' , external_source  , 22      , now         , now         , nil         , 'content' ] ,
+          [ 3   , 'external_id' , external_source  , 22      , now         , now         , nil         , 'content' ] ,
         )
       end
     end
