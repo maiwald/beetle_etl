@@ -3,15 +3,15 @@ module Beetle
 
     include CommonHelpers
 
-    attr_reader :table_name, :dependencies
+    attr_reader :table_name, :references
 
-    def initialize(table_name, dependencies)
+    def initialize(table_name, references)
       @table_name = table_name
-      @dependencies = dependencies
+      @references = references
     end
 
     def run
-      dependencies.each do |foreign_key_column, foreign_table_name|
+      references.each do |foreign_key_column, foreign_table_name|
         database.from(
           :"#{stage_schema}__#{table_name}___ST",
           :"#{stage_schema}__#{foreign_table_name}___FT"
