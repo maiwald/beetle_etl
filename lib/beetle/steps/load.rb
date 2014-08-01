@@ -1,17 +1,11 @@
 module Beetle
   class Load < Step
 
-    attr_reader :table_name
-
     IMPORTER_COLUMNS = %i[
       import_run_id
       external_source
       transition
     ]
-
-    def initialize(table_name)
-      @table_name = table_name
-    end
 
     def run
       %w(create update delete undelete).each do |transition|

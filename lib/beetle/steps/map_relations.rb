@@ -1,10 +1,10 @@
 module Beetle
   class MapRelations < Step
 
-    attr_reader :table_name, :relations
+    attr_reader :relations
 
     def initialize(table_name, relations)
-      @table_name = table_name
+      super(table_name)
       @relations = relations
     end
 

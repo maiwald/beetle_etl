@@ -7,12 +7,6 @@ module Beetle
       transition
     ]
 
-    attr_reader :table_name
-
-    def initialize(table_name)
-      @table_name = table_name
-    end
-
     def run
       %w(create keep update delete undelete).each do |transition|
         public_send(:"transition_#{transition}")

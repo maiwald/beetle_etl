@@ -1,6 +1,12 @@
 module Beetle
   class Step
 
+    attr_reader :table_name
+
+    def initialize(table_name)
+      @table_name = table_name
+    end
+
     def run_id
       Beetle.state.run_id
     end

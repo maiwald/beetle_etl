@@ -1,12 +1,6 @@
 module Beetle
   class AssignIds < Step
 
-    attr_reader :table_name
-
-    def initialize(table_name)
-      @table_name = table_name
-    end
-
     def run
       assign_new_ids
       map_existing_ids
