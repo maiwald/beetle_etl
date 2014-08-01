@@ -45,7 +45,7 @@ module Beetle
 
     describe '#depenencies' do
       it 'depends on MapRelations of the same table' do
-        expect(subject.dependencies).to eql(['example_table: Beetle::MapRelations'].to_set)
+        expect(subject.dependencies).to eql(['example_table: MapRelations'].to_set)
       end
     end
 

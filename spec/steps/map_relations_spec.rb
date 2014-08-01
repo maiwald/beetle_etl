@@ -49,9 +49,9 @@ module Beetle
 
         expect(MapRelations.new(:depender, relations).dependencies).to eql(
           [
-            'dependee_a: Beetle::AssignIds',
-            'dependee_b: Beetle::AssignIds',
-            'depender: Beetle::Transform',
+            'dependee_a: AssignIds',
+            'dependee_b: AssignIds',
+            'depender: Transform',
           ].to_set
         )
       end

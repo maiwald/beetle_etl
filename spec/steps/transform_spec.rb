@@ -13,8 +13,8 @@ module Beetle
       it 'depends on Transform of all dependencies' do
         expect(subject.dependencies).to eql(
           [
-            'some_table: Beetle::Transform',
-            'some_other_table: Beetle::Transform',
+            'some_table: Transform',
+            'some_other_table: Transform',
           ].to_set
         )
       end

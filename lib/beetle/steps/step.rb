@@ -11,7 +11,7 @@ module Beetle
     end
 
     def self.step_name(table_name)
-      "#{table_name}: #{name}"
+      "#{table_name}: #{name.split('::').last}"
     end
 
     def name

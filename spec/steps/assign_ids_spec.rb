@@ -34,7 +34,7 @@ module Beetle
 
     describe '#dependencies' do
       it 'depends on TableDiff of the same table' do
-        expect(subject.dependencies).to eql(['example_table: Beetle::TableDiff'].to_set)
+        expect(subject.dependencies).to eql(['example_table: TableDiff'].to_set)
       end
     end
 
