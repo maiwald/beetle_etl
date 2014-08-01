@@ -58,12 +58,12 @@ module Beetle
           [ run_id         , 'a_id'                  , 'b_id'                  ] ,
         )
 
-        references = {
+        relations = {
           dependee_a_id: :dependee_a,
           dependee_b_id: :dependee_b,
         }
 
-        MapRelations.new(:depender, references).run
+        MapRelations.new(:depender, relations).run
 
         expect(:stage__depender).to have_values(
           [ :import_run_id , :dependee_a_id , :dependee_b_id ] ,

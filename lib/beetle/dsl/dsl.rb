@@ -1,15 +1,15 @@
 module Beetle
   class DSL
 
-    attr_reader :reference_config, :query_string
+    attr_reader :relations, :query_string
 
     def initialize(table_name)
       @table_name = table_name
-      @reference_config = {}
+      @relations = {}
     end
 
     def references(foreign_table, on: foreign_key)
-      @reference_config[on] = foreign_table
+      @relations[on] = foreign_table
     end
 
     def query(query)

@@ -10,12 +10,12 @@ module Beetle
       (@parsed = DSL.new(table_name)).instance_eval(&setup)
     end
 
-    def references
-      @parsed.reference_config
+    def relations
+      @parsed.relations
     end
 
     def dependencies
-      @parsed.reference_config.values.to_set
+      @parsed.relations.values.to_set
     end
 
     def query

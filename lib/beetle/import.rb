@@ -9,13 +9,15 @@ module Beetle
       end
 
       transformations.each do |t|
-        MapRelations.new(t.table_name, t.references).run
+        MapRelations.new(t.table_name, t.relations).run
         TableDiff.new(t.table_name).run
         AssignIds.new(t.table_name).run
       end
 
-      transformations.each do |t|
-        Load.new(t.table_name).run
+      Beetle.database.transaction do
+        transformations.each do |t|
+          Load.new(t.table_name).run
+        end
       end
     end
 
