@@ -5,4 +5,3 @@ module Beetle
 
   end
 end
-
