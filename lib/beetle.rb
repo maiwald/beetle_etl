@@ -11,6 +11,7 @@ module Beetle
   require 'beetle/dsl/transformation_loader'
 
   require 'beetle/steps/step'
+  require 'beetle/steps/transform'
   require 'beetle/steps/map_relations'
   require 'beetle/steps/table_diff'
   require 'beetle/steps/assign_ids'

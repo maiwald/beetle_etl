@@ -4,8 +4,8 @@ module Beetle
     extend self
 
     def run
-      transformations.each do |transformation|
-        Beetle.database.run(transformation.query)
+      transformations.each do |t|
+        Transform.new(t.table_name, t.query).run
       end
 
       transformations.each do |t|
