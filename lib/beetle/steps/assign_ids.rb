@@ -1,7 +1,5 @@
 module Beetle
-  class AssignIds
-
-    include CommonHelpers
+  class AssignIds < Step
 
     attr_reader :table_name
 

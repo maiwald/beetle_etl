@@ -1,7 +1,5 @@
 module Beetle
-  class TableDiff
-
-    include CommonHelpers
+  class TableDiff < Step
 
     IMPORTER_COLUMNS = %i[
       import_run_id

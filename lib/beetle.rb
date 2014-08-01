@@ -4,21 +4,20 @@ module Beetle
 
   InvalidConfigurationError = Class.new(StandardError)
 
-  require 'beetle/common_helpers'
   require 'beetle/dependency_resolver'
 
   require 'beetle/dsl/dsl'
   require 'beetle/dsl/transformation'
   require 'beetle/dsl/transformation_loader'
 
-  require 'beetle/transform/map_relations'
-  require 'beetle/transform/table_diff'
-  require 'beetle/transform/assign_ids'
+  require 'beetle/steps/step'
+  require 'beetle/steps/map_relations'
+  require 'beetle/steps/table_diff'
+  require 'beetle/steps/assign_ids'
+  require 'beetle/steps/load'
 
-  require 'beetle/load'
-
-  require 'beetle/import'
   require 'beetle/state'
+  require 'beetle/import'
 
   class Configuration
     attr_accessor \

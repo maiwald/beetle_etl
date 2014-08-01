@@ -1,7 +1,5 @@
 module Beetle
-  class Load
-
-    include CommonHelpers
+  class Load < Step
 
     attr_reader :table_name
 

@@ -1,7 +1,5 @@
 module Beetle
-  class MapRelations
-
-    include CommonHelpers
+  class MapRelations < Step
 
     attr_reader :table_name, :relations
 

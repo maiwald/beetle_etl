@@ -1,5 +1,5 @@
 module Beetle
-  module CommonHelpers
+  class Step
 
     def run_id
       Beetle.state.run_id
