@@ -8,6 +8,10 @@ module Beetle
       @relations = relations
     end
 
+    def dependencies
+      relations.values.map { |d| AssignIds.step_name(d) }.to_set << Transform.step_name(table_name)
+    end
+
     def run
       relations.each do |foreign_key_column, foreign_table_name|
         database.from(

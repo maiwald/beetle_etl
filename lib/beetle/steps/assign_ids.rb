@@ -1,6 +1,10 @@
 module Beetle
   class AssignIds < Step
 
+    def dependencies
+      [TableDiff.step_name(table_name)].to_set
+    end
+
     def run
       assign_new_ids
       map_existing_ids

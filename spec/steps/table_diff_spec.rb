@@ -43,6 +43,12 @@ module Beetle
       end
     end
 
+    describe '#depenencies' do
+      it 'depends on MapRelations of the same table' do
+        expect(subject.dependencies).to eql(['example_table: Beetle::MapRelations'].to_set)
+      end
+    end
+
     describe '#run' do
       it 'runs all transitions' do
         %w(create keep update delete undelete).each do |transition|

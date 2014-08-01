@@ -1,10 +1,25 @@
 module Beetle
+
+  DependenciesNotDefinedError = Class.new(StandardError)
+
   class Step
 
     attr_reader :table_name
 
     def initialize(table_name)
       @table_name = table_name
+    end
+
+    def self.step_name(table_name)
+      "#{table_name}: #{name}"
+    end
+
+    def name
+      self.class.step_name(table_name)
+    end
+
+    def dependencies
+      raise DependenciesNotDefinedError
     end
 
     def run_id

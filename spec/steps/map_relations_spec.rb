@@ -40,6 +40,23 @@ module Beetle
       end
     end
 
+    describe '#depenencies' do
+      it 'depends on Transform of the same table and AssignIds of its dependees' do
+        relations = {
+          dependee_a_id: :dependee_a,
+          dependee_b_id: :dependee_b,
+        }
+
+        expect(MapRelations.new(:depender, relations).dependencies).to eql(
+          [
+            'dependee_a: Beetle::AssignIds',
+            'dependee_b: Beetle::AssignIds',
+            'depender: Beetle::Transform',
+          ].to_set
+        )
+      end
+    end
+
     describe '#run' do
       it 'maps external foreign key references to id references ' do
         insert_into(:stage__dependee_a).values(

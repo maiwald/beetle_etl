@@ -7,6 +7,10 @@ module Beetle
       transition
     ]
 
+    def dependencies
+      [MapRelations.step_name(table_name)].to_set
+    end
+
     def run
       %w(create keep update delete undelete).each do |transition|
         public_send(:"transition_#{transition}")

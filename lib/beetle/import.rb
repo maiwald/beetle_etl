@@ -4,7 +4,7 @@ module Beetle
     extend self
 
     def run
-      data_steps.each(&:run)
+      DependencyResolver.new(data_steps).resolved.each(&:run)
 
       Beetle.database.transaction do
         load_steps.each(&:run)
@@ -16,7 +16,7 @@ module Beetle
     def data_steps
       transformations.map do |t|
         [
-          Transform.new(t.table_name, t.query),
+          Transform.new(t.table_name, t.dependencies, t.query),
           MapRelations.new(t.table_name, t.relations),
           TableDiff.new(t.table_name),
           AssignIds.new(t.table_name),
@@ -31,10 +31,7 @@ module Beetle
     end
 
     def transformations
-      @transformations ||= begin
-        t = TransformationLoader.load
-        DependencyResolver.new(t).resolved
-      end
+      @transformations ||= TransformationLoader.load
     end
 
   end

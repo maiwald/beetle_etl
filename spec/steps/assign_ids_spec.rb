@@ -32,6 +32,12 @@ module Beetle
 
     end
 
+    describe '#dependencies' do
+      it 'depends on TableDiff of the same table' do
+        expect(subject.dependencies).to eql(['example_table: Beetle::TableDiff'].to_set)
+      end
+    end
+
     describe '#run' do
       it 'runs all transitions' do
         %i(assign_new_ids map_existing_ids).each do |method|

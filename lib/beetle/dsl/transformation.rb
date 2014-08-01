@@ -15,7 +15,7 @@ module Beetle
     end
 
     def dependencies
-      @parsed.relations.values.to_set
+      relations.values.to_set
     end
 
     def query

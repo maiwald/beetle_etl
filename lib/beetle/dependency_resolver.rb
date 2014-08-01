@@ -9,7 +9,7 @@ module Beetle
       @resolved = []
 
       while not items.empty?
-        resolved_names = resolved.flatten.map(&:table_name).to_set
+        resolved_names = resolved.flatten.map(&:name).to_set
 
         resolvable = items.select do |item|
           item.dependencies.subset?(resolved_names) || item.dependencies.empty?
