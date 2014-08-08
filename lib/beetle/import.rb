@@ -4,8 +4,7 @@ module Beetle
     extend self
 
     def run
-      DependencyResolver.new(data_steps).resolved.each(&:run)
-
+      TaskRunner.run(data_steps)
       Beetle.database.transaction do
         load_steps.each(&:run)
       end

@@ -5,8 +5,21 @@ module Beetle
   class DependencyResolver
 
     def initialize(items)
-      items = items.dup
-      @resolved = []
+      @items = items
+      check
+    end
+
+    def resolvables(resolved)
+      @items.select do |item|
+        (item.dependencies.subset?(resolved.to_set) || item.dependencies.empty?) && !resolved.include?(item.name)
+      end
+    end
+
+    private
+
+    def check
+      items = @items.dup
+      resolved = []
 
       while not items.empty?
         resolved_names = resolved.flatten.map(&:name).to_set
@@ -18,16 +31,8 @@ module Beetle
         raise UnsatisfiableDependenciesError if resolvable.empty?
 
         resolvable.each { |r| items.delete r }
-        @resolved << resolvable
+        resolved << resolvable
       end
-    end
-
-    def resolved
-      @resolved.flatten
-    end
-
-    def resolved_in_tiers
-      @resolved
     end
 
   end

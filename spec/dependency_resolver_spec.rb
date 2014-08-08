@@ -22,25 +22,24 @@ module Beetle
     let(:e) { Item.new(:e, Set.new([:c, :d])) }
     let(:f) { Item.new(:f, Set.new([:c, :d])) }
 
-    describe '#resolved' do
-      it 'returns an empty array if given an empty array' do
-        expect(DependencyResolver.new([]).resolved).to eql([])
+    def items
+      [a, b, c, d, e, f].shuffle
+    end
+
+    describe '#resolvables' do
+      let(:resolver) { DependencyResolver.new(items) }
+
+      it 'returns all items without dependencies when given an empty array' do
+        expect(resolver.resolvables([])).to match_array([a])
       end
 
-      it 'orderes transformations by their dependencies' do
-        result = DependencyResolver.new([b, e, c, f, a, d]).resolved
-        expect(result).to eql([a, b, c, d, e, f])
+      it 'returns all items with met dependencies' do
+        expect(resolver.resolvables([:a, :b, :c])).to match_array([d])
+        expect(resolver.resolvables([:a, :b, :c, :d])).to match_array([e, f])
       end
     end
 
-    describe '#resolved_in_tiers' do
-      it 'returns arrays of items that can run un parallel' do
-        result = DependencyResolver.new([b, e, c, f, a, d]).resolved_in_tiers
-        expect(result).to eql([[a], [b, c], [d], [e, f]])
-      end
-    end
-
-    context 'exceptional states' do
+    context 'with cyclic or missing dependencies' do
       let(:cyclic) { Item.new(:a, Set.new([:b])) }
 
       it 'detects cyclic dependencies' do

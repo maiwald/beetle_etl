@@ -1,10 +1,10 @@
 require 'beetle/version'
 
+require 'sequel'
+
 module Beetle
 
   InvalidConfigurationError = Class.new(StandardError)
-
-  require 'beetle/dependency_resolver'
 
   require 'beetle/dsl/dsl'
   require 'beetle/dsl/transformation'
@@ -16,6 +16,9 @@ module Beetle
   require 'beetle/steps/table_diff'
   require 'beetle/steps/assign_ids'
   require 'beetle/steps/load'
+
+  require 'beetle/task_runner/dependency_resolver'
+  require 'beetle/task_runner/task_runner'
 
   require 'beetle/state'
   require 'beetle/import'
