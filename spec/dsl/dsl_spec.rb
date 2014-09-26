@@ -1,13 +1,13 @@
 require 'spec_helper'
 
-module Beetle
+module BeetleETL
   describe DSL do
 
     subject { DSL.new(:foo_table) }
 
     describe '#stage_table' do
       it 'returns the stage table name including the schema defined in the config' do
-        Beetle.configure { |config| config.stage_schema = 'bar' }
+        BeetleETL.configure { |config| config.stage_schema = 'bar' }
         expect(subject.stage_table).to eql('"bar"."foo_table"')
       end
     end
@@ -35,7 +35,7 @@ module Beetle
     describe '#import_run_id' do
       it 'returns the import run id defined in the config' do
         id = double(:id)
-        allow(Beetle.state).to receive(:run_id) { id }
+        allow(BeetleETL.state).to receive(:run_id) { id }
         expect(subject.import_run_id).to eql(id)
       end
     end

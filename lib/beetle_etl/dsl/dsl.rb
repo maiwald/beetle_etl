@@ -1,4 +1,4 @@
-module Beetle
+module BeetleETL
   class DSL
 
     attr_reader :relations, :query_string
@@ -18,7 +18,7 @@ module Beetle
 
 
     def stage_table
-      %Q("#{Beetle.config.stage_schema}"."#{@table_name}")
+      %Q("#{BeetleETL.config.stage_schema}"."#{@table_name}")
     end
 
     def external_source
@@ -30,7 +30,7 @@ module Beetle
     end
 
     def import_run_id
-      Beetle.state.run_id
+      BeetleETL.state.run_id
     end
 
   end

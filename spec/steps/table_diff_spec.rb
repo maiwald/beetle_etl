@@ -3,7 +3,7 @@ require 'spec_helper'
 require 'active_support/core_ext/date/calculations'
 require 'active_support/core_ext/numeric/time'
 
-module Beetle
+module BeetleETL
   describe TableDiff do
 
     let(:run_id) { 1 }
@@ -11,13 +11,13 @@ module Beetle
     subject { TableDiff.new(:example_table) }
 
     before do
-      Beetle.configure do |config|
+      BeetleETL.configure do |config|
         config.stage_schema = 'stage'
         config.external_source = external_source
         config.database = test_database
       end
 
-      allow(Beetle).to receive(:state) { double(:state, run_id: run_id) }
+      allow(BeetleETL).to receive(:state) { double(:state, run_id: run_id) }
 
       test_database.create_schema(:stage)
       test_database.create_table(:stage__example_table) do

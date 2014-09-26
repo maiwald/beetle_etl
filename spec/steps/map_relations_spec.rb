@@ -1,19 +1,19 @@
 require 'spec_helper'
 
-module Beetle
+module BeetleETL
   describe MapRelations do
 
     let(:run_id) { 1 }
     let(:previous_run_id) { 5000 }
 
     before do
-      Beetle.configure do |config|
+      BeetleETL.configure do |config|
         config.stage_schema = 'stage'
         config.external_source = 'my_source'
         config.database = test_database
       end
 
-      allow(Beetle).to receive(:state) { double(:state, run_id: run_id) }
+      allow(BeetleETL).to receive(:state) { double(:state, run_id: run_id) }
 
       test_database.create_schema(:stage)
       test_database.create_table(:stage__dependee_a) do

@@ -1,7 +1,7 @@
 require "codeclimate-test-reporter"
 CodeClimate::TestReporter.start
 
-require_relative '../lib/beetle.rb'
+require_relative '../lib/beetle_etl.rb'
 require_relative 'support/database_helpers.rb'
 
 RSpec.configure do |config|
@@ -10,7 +10,7 @@ RSpec.configure do |config|
   config.backtrace_exclusion_patterns = [/rspec-core/]
 
   config.around(:each) do |example|
-    Beetle.reset
+    BeetleETL.reset
     if example.metadata[:feature]
       example.run
     else

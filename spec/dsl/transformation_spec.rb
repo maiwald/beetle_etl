@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Beetle
+module BeetleETL
   describe Transformation do
 
     describe '#table_name' do

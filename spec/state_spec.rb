@@ -3,12 +3,12 @@ require 'spec_helper'
 require 'active_support/core_ext/date/calculations'
 require 'active_support/core_ext/numeric/time'
 
-module Beetle
+module BeetleETL
   describe State do
     subject { State.new }
 
     before do
-      Beetle.configure do |config|
+      BeetleETL.configure do |config|
         config.stage_schema = 'stage'
         config.database = test_database
       end
@@ -42,7 +42,7 @@ module Beetle
           [ 1   , 'RUNNING' , now         , nil          ]
         )
 
-        expect { subject.start_import }.to raise_exception(Beetle::ImportAleadyRunning)
+        expect { subject.start_import }.to raise_exception(BeetleETL::ImportAleadyRunning)
       end
     end
 
@@ -64,7 +64,7 @@ module Beetle
         end
 
         it 'raises an exception when the import has not been started' do
-          expect { subject.run_id }.to raise_exception(Beetle::ImportNotRunning)
+          expect { subject.run_id }.to raise_exception(BeetleETL::ImportNotRunning)
         end
       end
 

@@ -1,6 +1,6 @@
 require 'celluloid/autostart'
 
-module Beetle
+module BeetleETL
   class TaskRunner
 
     include Celluloid

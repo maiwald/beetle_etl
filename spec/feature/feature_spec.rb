@@ -5,7 +5,7 @@ require 'yaml'
 require 'active_support/core_ext/date/calculations'
 require 'active_support/core_ext/numeric/time'
 
-describe Beetle do
+describe BeetleETL do
 
   include ExampleSchema
 
@@ -22,7 +22,7 @@ describe Beetle do
       [ 2        , 'Apple' , 'MacBook'  ] ,
     )
 
-    Beetle.configure do |config|
+    BeetleETL.configure do |config|
       config.transformation_file = File.expand_path('../example_transform.rb', __FILE__)
       config.database = test_database
       config.external_source = 'source_name'
@@ -30,7 +30,7 @@ describe Beetle do
     end
 
 
-    Beetle.import
+    BeetleETL.import
 
 
     expect(:organisations).to have_values(

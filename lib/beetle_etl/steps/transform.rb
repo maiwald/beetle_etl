@@ -1,4 +1,4 @@
-module Beetle
+module BeetleETL
   class Transform < Step
 
     attr_reader :query

@@ -1,4 +1,4 @@
-module Beetle
+module BeetleETL
 
   ImportAleadyRunning = Class.new(StandardError)
   ImportSchemaNotFound = Class.new(StandardError)
@@ -41,7 +41,7 @@ module Beetle
   private
 
     def import_runs_table
-      "#{Beetle.config.stage_schema}__import_runs".to_sym
+      "#{BeetleETL.config.stage_schema}__import_runs".to_sym
     end
 
     def import_already_running?
@@ -60,7 +60,7 @@ module Beetle
     end
 
     def import_runs_dataset
-      Beetle.database[import_runs_table]
+      BeetleETL.database[import_runs_table]
     end
 
   end

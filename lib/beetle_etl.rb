@@ -1,27 +1,27 @@
-require 'beetle/version'
+require 'beetle_etl/version'
 
 require 'sequel'
 
-module Beetle
+module BeetleETL
 
   InvalidConfigurationError = Class.new(StandardError)
 
-  require 'beetle/dsl/dsl'
-  require 'beetle/dsl/transformation'
-  require 'beetle/dsl/transformation_loader'
+  require 'beetle_etl/dsl/dsl'
+  require 'beetle_etl/dsl/transformation'
+  require 'beetle_etl/dsl/transformation_loader'
 
-  require 'beetle/steps/step'
-  require 'beetle/steps/transform'
-  require 'beetle/steps/map_relations'
-  require 'beetle/steps/table_diff'
-  require 'beetle/steps/assign_ids'
-  require 'beetle/steps/load'
+  require 'beetle_etl/steps/step'
+  require 'beetle_etl/steps/transform'
+  require 'beetle_etl/steps/map_relations'
+  require 'beetle_etl/steps/table_diff'
+  require 'beetle_etl/steps/assign_ids'
+  require 'beetle_etl/steps/load'
 
-  require 'beetle/task_runner/dependency_resolver'
-  require 'beetle/task_runner/task_runner'
+  require 'beetle_etl/task_runner/dependency_resolver'
+  require 'beetle_etl/task_runner/task_runner'
 
-  require 'beetle/state'
-  require 'beetle/import'
+  require 'beetle_etl/state'
+  require 'beetle_etl/import'
 
   class Configuration
     attr_accessor \

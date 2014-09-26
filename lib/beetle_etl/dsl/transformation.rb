@@ -1,6 +1,6 @@
 require 'set'
 
-module Beetle
+module BeetleETL
   class Transformation
 
     attr_reader :table_name

@@ -1,4 +1,4 @@
-module Beetle
+module BeetleETL
   class AssignIds < Step
 
     def dependencies

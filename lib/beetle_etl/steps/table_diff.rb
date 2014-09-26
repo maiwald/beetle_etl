@@ -1,4 +1,4 @@
-module Beetle
+module BeetleETL
   class TableDiff < Step
 
     IMPORTER_COLUMNS = %i[

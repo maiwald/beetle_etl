@@ -1,4 +1,4 @@
-module Beetle
+module BeetleETL
   class Load < Step
 
     IMPORTER_COLUMNS = %i[

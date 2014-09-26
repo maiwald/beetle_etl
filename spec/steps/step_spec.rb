@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Beetle
+module BeetleETL
   describe Step do
 
     subject { Step.new(:example_table) }

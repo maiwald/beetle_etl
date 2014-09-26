@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Beetle
+module BeetleETL
   describe Transform do
 
     let(:query) { double(:query) }
@@ -23,7 +23,7 @@ module Beetle
     describe '#run' do
       it 'runs a query in the database' do
         database = double(:database)
-        Beetle.configure { |config| config.database = database }
+        BeetleETL.configure { |config| config.database = database }
 
         expect(database).to receive(:run).with(query)
 

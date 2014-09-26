@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module Beetle
+module BeetleETL
   describe DependencyResolver do
 
     # test dependencies
@@ -44,12 +44,12 @@ module Beetle
 
       it 'detects cyclic dependencies' do
         expect { DependencyResolver.new([cyclic, b]) }.to \
-          raise_error(Beetle::UnsatisfiableDependenciesError)
+          raise_error(BeetleETL::UnsatisfiableDependenciesError)
       end
 
       it 'detects unsatisfiable dependencies' do
         expect { DependencyResolver.new([b]) }.to \
-          raise_error(Beetle::UnsatisfiableDependenciesError)
+          raise_error(BeetleETL::UnsatisfiableDependenciesError)
       end
     end
 

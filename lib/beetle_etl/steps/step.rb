@@ -1,4 +1,4 @@
-module Beetle
+module BeetleETL
 
   DependenciesNotDefinedError = Class.new(StandardError)
 
@@ -23,19 +23,19 @@ module Beetle
     end
 
     def run_id
-      Beetle.state.run_id
+      BeetleETL.state.run_id
     end
 
     def stage_schema
-      Beetle.config.stage_schema
+      BeetleETL.config.stage_schema
     end
 
     def external_source
-      Beetle.config.external_source
+      BeetleETL.config.external_source
     end
 
     def database
-      Beetle.database
+      BeetleETL.database
     end
 
   end

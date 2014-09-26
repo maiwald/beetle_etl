@@ -1,4 +1,4 @@
-module Beetle
+module BeetleETL
   class MapRelations < Step
 
     attr_reader :relations

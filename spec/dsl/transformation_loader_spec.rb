@@ -1,7 +1,7 @@
 require 'spec_helper'
 require 'tempfile'
 
-module Beetle
+module BeetleETL
   describe TransformationLoader do
 
     before :example do
@@ -15,7 +15,7 @@ module Beetle
         end
       FILE
 
-      Beetle.configure do |config|
+      BeetleETL.configure do |config|
         config.transformation_file = data_file.path
       end
     end

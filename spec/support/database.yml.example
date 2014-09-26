@@ -1,7 +1,7 @@
 adapter: 'postgres'
 encoding: utf8
 host: localhost
-database: beetle_test
+database: beetle_etl_test
 username: ''
 password: ''
 pool: 5

@@ -1,11 +1,11 @@
-module Beetle
+module BeetleETL
   module Import
 
     extend self
 
     def run
       TaskRunner.run(data_steps)
-      Beetle.database.transaction do
+      BeetleETL.database.transaction do
         load_steps.each(&:run)
       end
     end

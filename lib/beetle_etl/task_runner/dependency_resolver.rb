@@ -1,4 +1,4 @@
-module Beetle
+module BeetleETL
 
   UnsatisfiableDependenciesError = Class.new(StandardError)
 
