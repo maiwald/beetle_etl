@@ -1,63 +1,70 @@
-require 'celluloid/autostart'
-
 module BeetleETL
   class TaskRunner
 
-    include Celluloid
+    def initialize(tasks)
+      @dependency_resolver = DependencyResolver.new(tasks)
+      @tasks = tasks
 
-    def initialize(runnables)
-      @runnables = runnables
+      @queue = Queue.new
       @completed = Set.new
       @running = Set.new
-      @dependency_resolver = DependencyResolver.new(runnables)
-
-      run_next
     end
 
-    def completed(runnable_name)
-      @running.delete(runnable_name)
-      @completed << runnable_name
+    def run
+      results = {}
 
-      run_next
-    end
-
-    def run_next
-      if all_run?
-        terminate
-      else
-        resolvables.each do |runnable|
-          unless @running.include?(runnable.name)
-            Task.new(Actor.current, runnable).async.run_task
-            @running << runnable.name
-          end
+      until all_tasks_complete?
+        runnables.each do |task|
+          run_task_async(task)
+          mark_task_running(task.name)
         end
+
+        task_name, task_data = @queue.pop
+        results[task_name] = task_data
+        mark_task_completed(task_name)
       end
+
+      results
     end
 
     private
 
-    def resolvables
-      @dependency_resolver.resolvables(@completed)
+    attr_reader :running, :completed
+
+    def run_task_async(task)
+      Thread.new do
+        started_at = now
+        result = task.run
+        finished_at = now
+
+        @queue.push [task.name, {
+          started_at: started_at,
+          finished_at: finished_at,
+          result: result,
+        }]
+      end
     end
 
-    def all_run?
-      @completed == @runnables.map(&:name).to_set
+    def mark_task_running(task_name)
+      running.add(task_name)
     end
 
-    class Task
+    def mark_task_completed(task_name)
+      runnables.delete(task_name)
+      completed.add(task_name)
+    end
 
-      include Celluloid
+    def runnables
+      resolvables = @dependency_resolver.resolvables(completed)
+      resolvables.reject { |r| running.include? r.name }
+    end
 
-      def initialize(runner, task)
-        @runner = runner
-        @task = task
-      end
+    def all_tasks_complete?
+      @tasks.map(&:name).to_set == completed.to_set
+    end
 
-      def run_task
-        @task.run
-        @runner.async.completed(@task.name)
-        terminate
-      end
+    def now
+      Time.now
     end
 
   end

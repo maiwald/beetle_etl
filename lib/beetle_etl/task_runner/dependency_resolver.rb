@@ -21,7 +21,7 @@ module BeetleETL
       items = @items.dup
       resolved = []
 
-      while not items.empty?
+      until items.empty?
         resolved_names = resolved.flatten.map(&:name).to_set
 
         resolvable = items.select do |item|

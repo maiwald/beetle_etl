@@ -4,23 +4,23 @@ module BeetleETL
     extend self
 
     def run
-      TaskRunner.run(data_steps)
+      TaskRunner.new(data_steps).run
       BeetleETL.database.transaction do
-        TaskRunner.run(load_steps)
+        TaskRunner.new(load_steps).run
       end
     end
 
     private
 
     def data_steps
-      transformations.map do |t|
+      transformations.flat_map do |t|
         [
           Transform.new(t.table_name, t.dependencies, t.query),
           MapRelations.new(t.table_name, t.relations),
           TableDiff.new(t.table_name),
           AssignIds.new(t.table_name),
         ]
-      end.flatten
+      end
     end
 
     def load_steps
