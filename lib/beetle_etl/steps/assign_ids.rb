@@ -6,8 +6,10 @@ module BeetleETL
     end
 
     def run
-      assign_new_ids
-      map_existing_ids
+      [
+        Thread.new { assign_new_ids },
+        Thread.new { map_existing_ids }
+      ].each(&:join)
     end
 
     def assign_new_ids

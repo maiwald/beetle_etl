@@ -12,9 +12,9 @@ module BeetleETL
     end
 
     def run
-      %w(create keep update delete undelete).each do |transition|
-        public_send(:"transition_#{transition}")
-      end
+      %w(create keep update delete undelete).map do |transition|
+        Thread.new { public_send(:"transition_#{transition}") }
+      end.each(&:join)
     end
 
     def transition_create
