@@ -6,7 +6,7 @@ module BeetleETL
     def run
       TaskRunner.run(data_steps)
       BeetleETL.database.transaction do
-        load_steps.each(&:run)
+        TaskRunner.run(load_steps)
       end
     end
 
@@ -25,7 +25,7 @@ module BeetleETL
 
     def load_steps
       transformations.map do |t|
-        Load.new(t.table_name)
+        Load.new(t.table_name, t.relations)
       end
     end
 

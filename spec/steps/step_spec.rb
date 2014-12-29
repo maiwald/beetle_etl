@@ -30,7 +30,6 @@ module BeetleETL
       it 'raises an exception' do
         expect { subject.dependencies }.to raise_error(DependenciesNotDefinedError)
       end
-
     end
 
   end

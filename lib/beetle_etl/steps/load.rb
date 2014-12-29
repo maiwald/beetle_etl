@@ -7,10 +7,21 @@ module BeetleETL
       transition
     ]
 
+    attr_reader :relations
+
+    def initialize(table_name, relations)
+      super(table_name)
+      @relations = relations
+    end
+
     def run
       %w(create update delete undelete).each do |transition|
         public_send(:"load_#{transition}")
       end
+    end
+
+    def dependencies
+      relations.values.map { |d| Load.step_name(d) }.to_set
     end
 
     def load_create

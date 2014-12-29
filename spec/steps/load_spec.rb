@@ -13,7 +13,7 @@ module BeetleETL
     let(:now) { Time.now.beginning_of_day }
     let(:yesterday) { 1.day.ago.beginning_of_day }
 
-    subject { Load.new(:example_table) }
+    subject { Load.new(:example_table, []) }
 
     before do
       BeetleETL.configure do |config|
@@ -49,6 +49,22 @@ module BeetleETL
         String :payload, size: 255
         String :ignored_attribute, size: 255
         Integer :foo_id
+      end
+    end
+
+    describe '#depenencies' do
+      it 'depends on Transform of the same table and AssignIds of its dependees' do
+        relations = {
+          dependee_a_id: :dependee_a,
+          dependee_b_id: :dependee_b,
+        }
+
+        expect(Load.new(:depender, relations).dependencies).to eql(
+          [
+            'dependee_a: Load',
+            'dependee_b: Load',
+          ].to_set
+        )
       end
     end
 
