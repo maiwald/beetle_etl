@@ -13,18 +13,22 @@ module BeetleETL
     end
 
     def run
-      relations.each do |foreign_key_column, foreign_table_name|
-        database.from(
-          :"#{stage_schema}__#{table_name}___ST",
-          :"#{stage_schema}__#{foreign_table_name}___FT"
-        ).where(
-          ST__import_run_id: run_id,
-          FT__import_run_id: run_id,
-          FT__external_id: :"ST__external_#{foreign_key_column}",
-        ).update(
-          :"#{foreign_key_column}" => :"FT__id"
-        )
+      relations.map do |foreign_key_column, foreign_table_name|
+        database.execute <<-SQL
+          UPDATE #{stage_table_name} current_table
+          SET #{foreign_key_column} = foreign_table.id
+          FROM "#{stage_schema}"."#{foreign_table_name}" foreign_table
+          WHERE current_table.external_#{foreign_key_column} = foreign_table.external_id
+          AND current_table.import_run_id = #{run_id}
+          AND foreign_table.import_run_id = #{run_id}
+        SQL
       end
+    end
+
+    private
+
+    def stage_table_name
+      %Q("#{stage_schema}"."#{table_name}")
     end
 
   end
