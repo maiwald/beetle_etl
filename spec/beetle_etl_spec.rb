@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe BeetleETL do
-  describe '#import' do
 
+  describe '#import' do
     it 'runs the import' do
       allow(BeetleETL).to receive(:state) { double(:state).as_null_object }
       expect(BeetleETL::Import).to receive(:run)
@@ -65,6 +65,6 @@ describe BeetleETL do
       expect(BeetleETL.database).to eql(database)
       expect(BeetleETL.database).to eql(database)
     end
-
   end
+
 end

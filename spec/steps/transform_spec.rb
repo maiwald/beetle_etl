@@ -30,5 +30,6 @@ module BeetleETL
         subject.run
       end
     end
+
   end
 end
