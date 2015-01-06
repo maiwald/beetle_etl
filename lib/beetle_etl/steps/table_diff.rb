@@ -18,100 +18,98 @@ module BeetleETL
     end
 
     def transition_create
-      stage_table.where(
-        stage__import_run_id: run_id,
-      )
-      .where(Sequel.~(public_table.where(
-          public__external_id: :stage__external_id,
-          public__external_source: external_source,
+      database.execute <<-SQL
+        UPDATE #{stage_table_name} stage
+        SET transition = 'CREATE'
+        WHERE stage.import_run_id = #{run_id}
+        AND NOT EXISTS (
+          SELECT 1
+          FROM #{public_table_name} public
+          WHERE public.external_id = stage.external_id
+          AND public.external_source = '#{external_source}'
         )
-        .exists))
-      .update(transition: 'CREATE')
+      SQL
     end
 
     def transition_keep
-      stage_table.where(
-        stage__import_run_id: run_id,
-      )
-      .where(
-        public_table.where(
-          public__external_id: :stage__external_id,
-          public__external_source: external_source,
-          public__deleted_at: nil,
+      database.execute <<-SQL
+        UPDATE #{stage_table_name} stage
+        SET transition = 'KEEP'
+        WHERE stage.import_run_id = #{run_id}
+        AND EXISTS (
+          SELECT 1
+          FROM #{public_table_name} public
+          WHERE public.external_id = stage.external_id
+          AND public.external_source = '#{external_source}'
+          AND public.deleted_at IS NULL
+          AND
+            (#{public_record_columns.join(', ')})
+            IS NOT DISTINCT FROM
+            (#{stage_record_columns.join(', ')})
         )
-        .where(
-          ':public_columns IS NOT DISTINCT FROM :stage_columns',
-          public_columns: public_record_columns,
-          stage_columns: stage_record_columns,
-        )
-        .exists)
-      .update(transition: 'KEEP')
+      SQL
     end
 
     def transition_update
-      stage_table.where(
-        stage__import_run_id: run_id,
-      )
-      .where(
-        public_table.where(
-          public__external_id: :stage__external_id,
-          public__external_source: external_source,
-          public__deleted_at: nil,
+      database.execute <<-SQL
+        UPDATE #{stage_table_name} stage
+        SET transition = 'UPDATE'
+        WHERE stage.import_run_id = #{run_id}
+        AND EXISTS (
+          SELECT 1
+          FROM #{public_table_name} public
+          WHERE public.external_id = stage.external_id
+          AND public.external_source = '#{external_source}'
+          AND public.deleted_at IS NULL
+          AND
+            (#{public_record_columns.join(', ')})
+            IS DISTINCT FROM
+            (#{stage_record_columns.join(', ')})
         )
-        .where(
-          ':public_columns IS DISTINCT FROM :stage_columns',
-          public_columns: public_record_columns,
-          stage_columns: stage_record_columns,
-        )
-        .exists)
-      .update(transition: 'UPDATE')
+      SQL
     end
 
     def transition_delete
-      deleted_dataset = database.from(
-        :"#{stage_schema}__#{table_name}___stage",
-      ).right_join(
-        :"#{table_name}___public",
-        public__external_id: :stage__external_id,
-        public__external_source: external_source,
-      ).where(
-        stage__external_id: nil,
-        public__deleted_at: nil
-      )
-
-      database[:"#{stage_schema}__#{table_name}"]
-        .import(
-          [
-            :import_run_id,
-            :external_id,
-            :transition
-          ],
-          deleted_dataset
-            .select(
-              run_id,
-              :public__external_id,
-              'DELETE'
-            )
-        )
+      database.execute <<-SQL
+        INSERT INTO #{stage_table_name}
+          (import_run_id, external_id, transition)
+        SELECT
+          #{run_id},
+          public.external_id,
+          'DELETE'
+        FROM #{stage_table_name} stage
+        RIGHT JOIN #{public_table_name} public
+          ON (stage.external_id = public.external_id)
+        WHERE stage.external_id IS NULL
+        AND public.external_source = '#{external_source}'
+        AND public.deleted_at IS NULL
+      SQL
     end
 
     def transition_undelete
-      stage_table.where(
-        stage__import_run_id: run_id,
-      )
-      .where(
-        public_table.where(
-          public__external_id: :stage__external_id,
-          public__external_source: external_source,
+      database.execute <<-SQL
+        UPDATE #{stage_table_name} stage
+        SET transition = 'UNDELETE'
+        WHERE stage.import_run_id = #{run_id}
+        AND EXISTS (
+          SELECT 1
+          FROM #{public_table_name} public
+          WHERE public.external_id = stage.external_id
+          AND public.external_source = '#{external_source}'
+          AND public.deleted_at IS NOT NULL
         )
-        .exclude(
-          public__deleted_at: nil
-        )
-        .exists)
-      .update(transition: 'UNDELETE')
+      SQL
     end
 
     private
+
+    def stage_table_name
+      %Q("#{stage_schema}"."#{table_name}")
+    end
+
+    def public_table_name
+      %Q("#{table_name}")
+    end
 
     def stage_table
       @stage_table ||= database[:"#{stage_schema}__#{table_name}___stage"]
@@ -148,7 +146,7 @@ module BeetleETL
     end
 
     def prefixed_columns(columns, prefix)
-      columns.map { |column| "#{prefix}__#{column}".to_sym }
+      columns.map { |column| %Q("#{prefix}"."#{column}") }
     end
 
   end
