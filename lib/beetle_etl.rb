@@ -29,10 +29,12 @@ module BeetleETL
       :database,
       :transformation_file,
       :stage_schema,
+      :public_schema,
       :external_source
 
     def initialize
       @stage_schema = 'stage'
+      @public_schema = 'public'
     end
   end
 

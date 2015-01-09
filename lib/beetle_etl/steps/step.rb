@@ -27,7 +27,7 @@ module BeetleETL
     end
 
     def public_table_name
-      %Q("#{table_name}")
+      %Q("#{public_schema}"."#{table_name}")
     end
 
     def run_id
@@ -36,6 +36,10 @@ module BeetleETL
 
     def stage_schema
       BeetleETL.config.stage_schema
+    end
+
+    def public_schema
+      BeetleETL.config.public_schema
     end
 
     def external_source
