@@ -7,8 +7,6 @@ module BeetleETL
       transition
     ]
 
-    attr_reader :relations
-
     def initialize(table_name, relations)
       super(table_name)
       @relations = relations
@@ -21,7 +19,7 @@ module BeetleETL
     end
 
     def dependencies
-      relations.values.map { |d| Load.step_name(d) }.to_set
+      @relations.values.map { |d| Load.step_name(d) }.to_set
     end
 
     def load_create

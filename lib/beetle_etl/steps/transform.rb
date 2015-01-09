@@ -1,8 +1,6 @@
 module BeetleETL
   class Transform < Step
 
-    attr_reader :query
-
     def initialize(table_name, dependencies, query)
       super(table_name)
       @dependencies = dependencies
@@ -14,7 +12,7 @@ module BeetleETL
     end
 
     def run
-      database.run(query)
+      database.run(@query)
     end
 
   end
