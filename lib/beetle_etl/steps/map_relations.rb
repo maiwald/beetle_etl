@@ -25,11 +25,5 @@ module BeetleETL
       end
     end
 
-    private
-
-    def stage_table_name
-      %Q("#{stage_schema}"."#{table_name}")
-    end
-
   end
 end

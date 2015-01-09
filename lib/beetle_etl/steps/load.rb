@@ -89,14 +89,6 @@ module BeetleETL
 
     private
 
-    def stage_table_name
-      %Q("#{stage_schema}"."#{table_name}")
-    end
-
-    def public_table_name
-      %Q("#{table_name}")
-    end
-
     def data_columns
       table_columns - ignored_columns
     end

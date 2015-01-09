@@ -103,22 +103,6 @@ module BeetleETL
 
     private
 
-    def stage_table_name
-      %Q("#{stage_schema}"."#{table_name}")
-    end
-
-    def public_table_name
-      %Q("#{table_name}")
-    end
-
-    def stage_table
-      @stage_table ||= database[:"#{stage_schema}__#{table_name}___stage"]
-    end
-
-    def public_table
-      @public_table ||= database[:"#{table_name}___public"]
-    end
-
     def public_record_columns
       prefixed_columns(data_columns, 'public')
     end
