@@ -11,6 +11,7 @@ module BeetleETL
   require 'beetle_etl/dsl/transformation_loader'
 
   require 'beetle_etl/steps/step'
+  require 'beetle_etl/steps/create_stage'
   require 'beetle_etl/steps/transform'
   require 'beetle_etl/steps/map_relations'
   require 'beetle_etl/steps/table_diff'
