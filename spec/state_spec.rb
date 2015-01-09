@@ -5,6 +5,7 @@ require 'active_support/core_ext/numeric/time'
 
 module BeetleETL
   describe State do
+
     subject { State.new }
 
     before do
@@ -120,5 +121,6 @@ module BeetleETL
         end
       end
     end
+
   end
 end

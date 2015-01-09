@@ -26,69 +26,65 @@ module BeetleETL
 
     def load_create
       just_now = now
-      database[table_name].import(
-        data_columns + [:external_source, :created_at, :updated_at],
-        database[:"#{stage_schema}__#{table_name}"]
-          .select(*data_columns)
-          .where(
-            import_run_id: run_id,
-            transition: 'CREATE'
-          )
-          .select_more(external_source, just_now, just_now)
-        )
+
+      database.execute <<-SQL
+        INSERT INTO #{public_table_name}
+          (#{data_columns.join(', ')}, external_source, created_at, updated_at)
+        SELECT
+          #{data_columns.join(', ')},
+          '#{external_source}',
+          '#{just_now}',
+          '#{just_now}'
+        FROM #{stage_table_name}
+        WHERE
+          import_run_id = #{run_id}
+          AND transition = 'CREATE'
+      SQL
     end
 
     def load_update
-      updates = updatable_columns.reduce({updated_at: now}) do |acc, column|
-        acc[column] = :"stage__#{column}"
-        acc
-      end
-
-      database.from(
-        :"#{table_name}___public",
-        :"#{stage_schema}__#{table_name}___stage"
-      )
-        .where(
-          stage__id: :public__id,
-          stage__transition: 'UPDATE',
-          stage__import_run_id: run_id,
-        )
-        .update(updates)
+      database.execute <<-SQL
+        UPDATE #{public_table_name} public
+        SET
+          #{updatable_columns.map { |c| %Q("#{c}" = stage."#{c}") }.join(',')},
+          "updated_at" = '#{now}'
+        FROM #{stage_table_name} stage
+        WHERE
+          stage.import_run_id = #{run_id}
+          AND stage.id = public.id
+          AND stage.transition = 'UPDATE'
+      SQL
     end
 
     def load_delete
       just_now = now
-      database.from(
-          :"#{table_name}___public",
-          :"#{stage_schema}__#{table_name}___stage"
-        )
-        .where(
-          stage__id: :public__id,
-          stage__transition: 'DELETE',
-          stage__import_run_id: run_id,
-        )
-        .update(
-          updated_at: just_now,
-          deleted_at: just_now,
-        )
+
+      database.execute <<-SQL
+        UPDATE #{public_table_name} public
+        SET
+          updated_at = '#{just_now}',
+          deleted_at = '#{just_now}'
+        FROM #{stage_table_name} stage
+        WHERE
+          stage.import_run_id = #{run_id}
+          AND stage.id = public.id
+          AND stage.transition = 'DELETE'
+      SQL
     end
 
     def load_undelete
-      updates = updatable_columns.reduce({updated_at: now, deleted_at: nil}) do |acc, column|
-        acc[column] = :"stage__#{column}"
-        acc
-      end
-
-      database.from(
-        :"#{table_name}___public",
-        :"#{stage_schema}__#{table_name}___stage"
-      )
-        .where(
-          stage__id: :public__id,
-          stage__transition: 'UNDELETE',
-          stage__import_run_id: run_id,
-        )
-        .update(updates)
+      database.execute <<-SQL
+        UPDATE #{public_table_name} public
+        SET
+          #{updatable_columns.map { |c| %Q("#{c}" = stage."#{c}") }.join(',')},
+          updated_at = '#{now}',
+          deleted_at = NULL
+        FROM #{stage_table_name} stage
+        WHERE
+          stage.import_run_id = #{run_id}
+          AND stage.id = public.id
+          AND stage.transition = 'UNDELETE'
+      SQL
     end
 
     private
