@@ -19,7 +19,8 @@ module BeetleETL
           id integer,
           external_id character varying(255),
 
-          #{payload_column_definitions}
+          #{payload_column_definitions},
+          #{relation_column_definitions}
         )
       SQL
     end
@@ -27,8 +28,17 @@ module BeetleETL
     private
 
     def payload_column_definitions
-      @column_names.map do |column_name|
+      (@column_names - @relations.keys).map do |column_name|
         "#{column_name} #{column_type(column_name)}"
+      end.join(',')
+    end
+
+    def relation_column_definitions
+      @relations.map do |foreign_key_name, table|
+        <<-SQL
+          #{foreign_key_name} integer,
+          external_#{foreign_key_name} character varying(255)
+        SQL
       end.join(',')
     end
 
