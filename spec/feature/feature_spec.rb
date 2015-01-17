@@ -22,9 +22,12 @@ describe BeetleETL do
       [ 2        , 'Apple' , 'MacBook'  ] ,
     )
 
+    database_config_path = File.expand_path('../support/database.yml', File.dirname(__FILE__))
+    database_config = YAML.load(File.read(database_config_path))
+
     BeetleETL.configure do |config|
       config.transformation_file = File.expand_path('../example_transform.rb', __FILE__)
-      config.database = test_database
+      config.database_config = database_config
       config.external_source = 'source_name'
       config.stage_schema = 'stage'
     end
