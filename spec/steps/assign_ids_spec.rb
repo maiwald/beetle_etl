@@ -17,7 +17,7 @@ module BeetleETL
       allow(BeetleETL).to receive(:state) { double(:state, run_id: run_id) }
 
       test_database.create_schema(:stage)
-      test_database.create_table(:stage__example_table) do
+      test_database.create_table(subject.stage_table_name.to_sym) do
         Integer :id
         Integer :import_run_id
         String :external_id, size: 255
@@ -55,7 +55,7 @@ module BeetleETL
           [ 'keep_id'    , external_source  ] ,
         )
 
-        insert_into(:stage__example_table).values(
+        insert_into(subject.stage_table_name.to_sym).values(
           [ :import_run_id , :external_id , :transition ] ,
           [ run_id         , 'create_id'  , 'CREATE'    ] ,
           [ run_id         , 'keep_id'    , 'KEEP'      ] ,
@@ -63,7 +63,7 @@ module BeetleETL
 
         subject.assign_new_ids
 
-        expect(:stage__example_table).to have_values(
+        expect(subject.stage_table_name.to_sym).to have_values(
           [ :id , :import_run_id , :external_id , :transition ] ,
           [ 2   , run_id         , 'create_id'  , 'CREATE'    ] ,
           [ nil , run_id         , 'keep_id'    , 'KEEP'      ] ,
@@ -81,7 +81,7 @@ module BeetleETL
           [ 'undelete_id' , external_source  ] ,
         )
 
-        insert_into(:stage__example_table).values(
+        insert_into(subject.stage_table_name.to_sym).values(
           [ :import_run_id , :external_id  , :transition ] ,
           [ run_id         , 'create_id'   , 'CREATE'    ] ,
           [ run_id         , 'keep_id'     , 'KEEP'      ] ,
@@ -92,7 +92,7 @@ module BeetleETL
 
         subject.map_existing_ids
 
-        expect(:stage__example_table).to have_values(
+        expect(subject.stage_table_name.to_sym).to have_values(
           [ :id , :import_run_id , :external_id  , :transition ] ,
           [ nil , run_id         , 'create_id'   , 'CREATE'    ] ,
           [ 1   , run_id         , 'keep_id'     , 'KEEP'      ] ,

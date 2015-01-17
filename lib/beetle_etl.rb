@@ -10,6 +10,8 @@ module BeetleETL
   require 'beetle_etl/dsl/transformation'
   require 'beetle_etl/dsl/transformation_loader'
 
+  require 'beetle_etl/naming'
+
   require 'beetle_etl/steps/step'
   require 'beetle_etl/steps/create_stage'
   require 'beetle_etl/steps/transform'
@@ -34,7 +36,6 @@ module BeetleETL
       :external_source
 
     def initialize
-      @stage_schema = 'stage'
       @public_schema = 'public'
     end
   end

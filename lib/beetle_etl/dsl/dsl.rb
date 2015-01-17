@@ -18,7 +18,7 @@ module BeetleETL
 
 
     def stage_table
-      %Q("#{BeetleETL.config.stage_schema}"."#{@table_name}")
+      BeetleETL::Naming.stage_table_name_sql(@table_name)
     end
 
     def external_source

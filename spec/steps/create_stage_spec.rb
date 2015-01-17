@@ -13,7 +13,6 @@ module BeetleETL
     describe '#run' do
       before do
         BeetleETL.configure do |config|
-          config.stage_schema = 'stage'
           config.database = test_database
         end
 
@@ -41,14 +40,14 @@ module BeetleETL
         @columns = %i(some_string some_integer some_float)
       end
 
-      subject do
+      let(:subject) do
         CreateStage.new(:example_table, @relations, @columns)
       end
 
       it 'creates a stage table table with all payload columns' do
         subject.run
 
-        columns = Hash[test_database.schema(:stage__example_table)]
+        columns = Hash[test_database.schema(subject.stage_table_name.to_sym)]
 
         expected_columns = %i(id external_id some_string some_integer some_float)
         expect(columns.keys).to include(*expected_columns)
@@ -64,7 +63,7 @@ module BeetleETL
       it 'adds columns for dependent foreign key associations' do
         subject.run
 
-        columns = Hash[test_database.schema(:stage__example_table)]
+        columns = Hash[test_database.schema(subject.stage_table_name)]
 
         expected_columns = %i(
           dependee_a_id external_dependee_a_id

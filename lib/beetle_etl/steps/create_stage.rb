@@ -12,10 +12,8 @@ module BeetleETL
     end
 
     def run
-      database.create_schema stage_schema, if_not_exists: true
-
       database.execute <<-SQL
-        CREATE TABLE #{stage_table_name} (
+        CREATE TEMPORARY TABLE #{stage_table_name_sql} (
           id integer,
           external_id character varying(255),
 
@@ -43,7 +41,7 @@ module BeetleETL
     end
 
     def column_type(column_name)
-      @column_types ||= Hash[database.schema(:"#{public_schema}__#{table_name}")]
+      @column_types ||= Hash[database.schema(public_table_name.to_sym)]
         .reduce({}) do |acc, (name, schema)|
           acc[name.to_sym] = schema.fetch(:db_type)
           acc

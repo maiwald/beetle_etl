@@ -26,14 +26,14 @@ module BeetleETL
       just_now = now
 
       database.execute <<-SQL
-        INSERT INTO #{public_table_name}
+        INSERT INTO #{public_table_name_sql}
           (#{data_columns.join(', ')}, external_source, created_at, updated_at)
         SELECT
           #{data_columns.join(', ')},
           '#{external_source}',
           '#{just_now}',
           '#{just_now}'
-        FROM #{stage_table_name}
+        FROM #{stage_table_name_sql}
         WHERE
           import_run_id = #{run_id}
           AND transition = 'CREATE'
@@ -42,11 +42,11 @@ module BeetleETL
 
     def load_update
       database.execute <<-SQL
-        UPDATE #{public_table_name} public
+        UPDATE #{public_table_name_sql} public
         SET
           #{updatable_columns.map { |c| %Q("#{c}" = stage."#{c}") }.join(',')},
           "updated_at" = '#{now}'
-        FROM #{stage_table_name} stage
+        FROM #{stage_table_name_sql} stage
         WHERE
           stage.import_run_id = #{run_id}
           AND stage.id = public.id
@@ -58,11 +58,11 @@ module BeetleETL
       just_now = now
 
       database.execute <<-SQL
-        UPDATE #{public_table_name} public
+        UPDATE #{public_table_name_sql} public
         SET
           updated_at = '#{just_now}',
           deleted_at = '#{just_now}'
-        FROM #{stage_table_name} stage
+        FROM #{stage_table_name_sql} stage
         WHERE
           stage.import_run_id = #{run_id}
           AND stage.id = public.id
@@ -72,12 +72,12 @@ module BeetleETL
 
     def load_undelete
       database.execute <<-SQL
-        UPDATE #{public_table_name} public
+        UPDATE #{public_table_name_sql} public
         SET
           #{updatable_columns.map { |c| %Q("#{c}" = stage."#{c}") }.join(',')},
           updated_at = '#{now}',
           deleted_at = NULL
-        FROM #{stage_table_name} stage
+        FROM #{stage_table_name_sql} stage
         WHERE
           stage.import_run_id = #{run_id}
           AND stage.id = public.id
@@ -92,7 +92,7 @@ module BeetleETL
     end
 
     def table_columns
-      @table_columns ||= database[:"#{stage_schema}__#{table_name}"].columns
+      @table_columns ||= database[stage_table_name.to_sym].columns
     end
 
     def ignored_columns
