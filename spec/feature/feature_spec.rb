@@ -46,8 +46,9 @@ describe BeetleETL do
     insert_into(:source__Organisation).values(
       [ :pkOrgId , :Name    , :Adresse        , :Abteilung ] ,
       [ 1        , 'Apple'  , 'Apple Street'  , 'iPhone'   ] ,
-      [ 2        , 'Google' , 'Google Street' , 'MacBook'  ] ,
-      [ 3        , 'Audi'   , 'Audi Street'   , 'A4'       ] ,
+      [ 2        , 'Apple'  , 'Apple Street'  , 'MacBook'  ] ,
+      [ 3        , 'Google' , 'Google Street' , 'Gmail'    ] ,
+      [ 4        , 'Audi'   , 'Audi Street'   , 'A4'       ] ,
     )
 
     Timecop.freeze(time1) do
@@ -61,6 +62,14 @@ describe BeetleETL do
       [ organisation_id('Audi')   , 'Audi'       , 'source_name'    , 'Audi'   , 'Audi Street'   , time1       , time1       , nil         ]
     )
 
+    expect(:departments).to have_values(
+      [ :id                         , :external_id , :organisation_id          , :external_source , :name     , :created_at , :updated_at , :deleted_at ] ,
+      [ department_id('[Apple|1]')  , '[Apple|1]'  , organisation_id('Apple')  , 'source_name'    , 'iPhone'  , time1       , time1       , nil         ] ,
+      [ department_id('[Apple|2]')  , '[Apple|2]'  , organisation_id('Apple')  , 'source_name'    , 'MacBook' , time1       , time1       , nil         ] ,
+      [ department_id('[Google|3]') , '[Google|3]' , organisation_id('Google') , 'source_name'    , 'Gmail'   , time1       , time1       , nil         ] ,
+      [ department_id('[Audi|4]')   , '[Audi|4]'   , organisation_id('Audi')   , 'source_name'    , 'A4'      , time1       , time1       , nil         ] ,
+    )
+
     test_database[:source__Organisation].truncate
   end
 
@@ -69,8 +78,9 @@ describe BeetleETL do
     insert_into(:source__Organisation).values(
       [ :pkOrgId , :Name    , :Adresse            , :Abteilung ] ,
       [ 1        , 'Apple'  , 'Apple Street'      , 'iPhone'   ] ,
-      [ 2        , 'Google' , 'NEW Google Street' , 'MacBook'  ] ,
-    # [ 3        , 'Audi'   , 'Audi Street'       , 'A4'       ] ,
+      [ 2        , 'Apple'  , 'Apple Street'      , 'MacBook'  ] ,
+      [ 3        , 'Google' , 'NEW Google Street' , 'Google+'  ] ,
+    # [ 4        , 'Audi'   , 'Audi Street'       , 'A4'       ] ,
     )
 
     Timecop.freeze(time2) do
@@ -84,6 +94,14 @@ describe BeetleETL do
       [ organisation_id('Audi')   , 'Audi'       , 'source_name'    , 'Audi'   , 'Audi Street'       , time1       , time2       , time2       ]
     )
 
+    expect(:departments).to have_values(
+      [ :id                         , :external_id , :organisation_id          , :external_source , :name     , :created_at , :updated_at , :deleted_at ] ,
+      [ department_id('[Apple|1]')  , '[Apple|1]'  , organisation_id('Apple')  , 'source_name'    , 'iPhone'  , time1       , time1       , nil         ] ,
+      [ department_id('[Apple|2]')  , '[Apple|2]'  , organisation_id('Apple')  , 'source_name'    , 'MacBook' , time1       , time1       , nil         ] ,
+      [ department_id('[Google|3]') , '[Google|3]' , organisation_id('Google') , 'source_name'    , 'Google+' , time1       , time2       , nil         ] ,
+      [ department_id('[Audi|4]')   , '[Audi|4]'   , organisation_id('Audi')   , 'source_name'    , 'A4'      , time1       , time2       , time2       ] ,
+    )
+
     test_database[:source__Organisation].truncate
   end
 
@@ -92,8 +110,9 @@ describe BeetleETL do
     insert_into(:source__Organisation).values(
       [ :pkOrgId , :Name    , :Adresse            , :Abteilung ] ,
       [ 1        , 'Apple'  , 'Apple Street'      , 'iPhone'   ] ,
-      [ 2        , 'Google' , 'NEW Google Street' , 'MacBook'  ] ,
-      [ 3        , 'Audi'   , 'NEW Audi Street'   , 'A4'       ] ,
+      [ 2        , 'Apple'  , 'Apple Street'      , 'MacBook'  ] ,
+      [ 3        , 'Google' , 'NEW Google Street' , 'Google+'  ] ,
+      [ 4        , 'Audi'   , 'NEW Audi Street'   , 'A4'       ] ,
     )
 
     Timecop.freeze(time3) do
@@ -107,11 +126,23 @@ describe BeetleETL do
       [ organisation_id('Audi')   , 'Audi'       , 'source_name'    , 'Audi'   , 'NEW Audi Street'   , time1       , time3       , nil         ]
     )
 
+    expect(:departments).to have_values(
+      [ :id                         , :external_id , :organisation_id          , :external_source , :name     , :created_at , :updated_at , :deleted_at ] ,
+      [ department_id('[Apple|1]')  , '[Apple|1]'  , organisation_id('Apple')  , 'source_name'    , 'iPhone'  , time1       , time1       , nil         ] ,
+      [ department_id('[Apple|2]')  , '[Apple|2]'  , organisation_id('Apple')  , 'source_name'    , 'MacBook' , time1       , time1       , nil         ] ,
+      [ department_id('[Google|3]') , '[Google|3]' , organisation_id('Google') , 'source_name'    , 'Google+' , time1       , time2       , nil         ] ,
+      [ department_id('[Audi|4]')   , '[Audi|4]'   , organisation_id('Audi')   , 'source_name'    , 'A4'      , time1       , time3       , nil         ] ,
+    )
+
     test_database[:source__Organisation].truncate
   end
 
   def organisation_id(external_id)
     test_database[:organisations].first(external_id: external_id)[:id]
+  end
+
+  def department_id(external_id)
+    test_database[:departments].first(external_id: external_id)[:id]
   end
 
 end

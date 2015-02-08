@@ -26,7 +26,7 @@ module BeetleETL
     end
 
     def combined_key(*args)
-      %Q('[' || #{args.join(%q[ || ',' || ])} || ']')
+      %Q('[' || #{args.join(%q[ || '|' || ])} || ']')
     end
 
     def import_run_id
