@@ -42,7 +42,7 @@ module BeetleETL
       state.start_import
 
       begin
-        Import.run
+        Import.new.run
         state.mark_as_succeeded
       rescue Exception => e
         state.mark_as_failed

@@ -6,7 +6,8 @@ require 'active_support/core_ext/numeric/time'
 module BeetleETL
   describe TableDiff do
 
-    let(:run_id) { 1 }
+    let(:run_id) { 2 }
+    let(:previous_run_id) { 1 }
     let(:external_source) { 'my_source' }
     subject { TableDiff.new(:example_table) }
 
@@ -69,17 +70,19 @@ module BeetleETL
         )
 
         insert_into(:stage__example_table).values(
-          [ :import_run_id , :external_id ] ,
-          [ run_id         , 'created'    ] ,
-          [ run_id         , 'existing'   ] ,
+          [ :import_run_id  , :external_id ] ,
+          [ previous_run_id , 'created'    ] ,
+          [ run_id          , 'created'    ] ,
+          [ run_id          , 'existing'   ] ,
         )
 
         subject.transition_create
 
         expect(:stage__example_table).to have_values(
-          [ :import_run_id , :external_id , :transition ] ,
-          [ run_id         , 'created'    , 'CREATE'    ] ,
-          [ run_id         , 'existing'   , nil         ] ,
+          [ :import_run_id  , :external_id , :transition ] ,
+          [ previous_run_id , 'created'    , nil         ] ,
+          [ run_id          , 'created'    , 'CREATE'    ] ,
+          [ run_id          , 'existing'   , nil         ] ,
         )
       end
     end
@@ -95,17 +98,19 @@ module BeetleETL
         )
 
         insert_into(:stage__example_table).values(
-          [ :import_run_id , :external_id , :payload           , :foo_id , :external_foo_id ] ,
-          [ run_id         , 'existing'   , 'existing content' , 1       , 'ignored column' ] ,
-          [ run_id         , 'deleted'    , 'deleted content'  , 2       , 'ignored column' ] ,
+          [ :import_run_id  , :external_id , :payload           , :foo_id , :external_foo_id ] ,
+          [ previous_run_id , 'existing'   , 'existing content' , 1       , 'ignored column' ] ,
+          [ run_id          , 'existing'   , 'existing content' , 1       , 'ignored column' ] ,
+          [ run_id          , 'deleted'    , 'deleted content'  , 2       , 'ignored column' ] ,
         )
 
         subject.transition_keep
 
         expect(:stage__example_table).to have_values(
-          [ :import_run_id , :external_id , :transition ] ,
-          [ run_id         , 'existing'   , 'KEEP'      ] ,
-          [ run_id         , 'deleted'    , nil         ] ,
+          [ :import_run_id  , :external_id , :transition ] ,
+          [ previous_run_id , 'existing'   , nil         ] ,
+          [ run_id          , 'existing'   , 'KEEP'      ] ,
+          [ run_id          , 'deleted'    , nil         ] ,
         )
       end
     end
@@ -122,36 +127,44 @@ module BeetleETL
         )
 
         insert_into(:stage__example_table).values(
-          [ :import_run_id , :external_id , :payload           , :foo_id , :external_foo_id ] ,
-          [ run_id         , 'existing_1' , 'updated content'  , 1       , 'ignored_column' ] ,
-          [ run_id         , 'existing_2' , 'existing content' , 4       , 'ignored_column' ] ,
-          [ run_id         , 'deleted'    , 'updated content'  , 3       , 'ignored_column' ] ,
+          [ :import_run_id  , :external_id , :payload           , :foo_id , :external_foo_id ] ,
+          [ previous_run_id , 'existing_1' , 'updated content'  , 1       , 'ignored_column' ] ,
+          [ run_id          , 'existing_1' , 'updated content'  , 1       , 'ignored_column' ] ,
+          [ run_id          , 'existing_2' , 'existing content' , 4       , 'ignored_column' ] ,
+          [ run_id          , 'deleted'    , 'updated content'  , 3       , 'ignored_column' ] ,
         )
 
         subject.transition_update
 
         expect(:stage__example_table).to have_values(
-          [ :import_run_id , :external_id , :transition ] ,
-          [ run_id         , 'existing_1' , 'UPDATE'    ] ,
-          [ run_id         , 'existing_2' , 'UPDATE'    ] ,
-          [ run_id         , 'deleted'    , nil         ] ,
+          [ :import_run_id  , :external_id , :transition ] ,
+          [ previous_run_id , 'existing_1' , nil         ] ,
+          [ run_id          , 'existing_1' , 'UPDATE'    ] ,
+          [ run_id          , 'existing_2' , 'UPDATE'    ] ,
+          [ run_id          , 'deleted'    , nil         ] ,
         )
       end
     end
 
     describe 'transition_delete' do
-      it 'creates records with DELETE that no loger exist in the stage table' do
+      it 'creates records with DELETE that no loger exist in the stage table for the given run' do
         insert_into(:example_table).values(
           [ :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at ] ,
           [ 'existing'   , external_source  , 'existing content' , 'ignored content'  , 1       , nil         ] ,
           [ 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 2       , 1.day.ago   ] ,
         )
 
+        insert_into(:stage__example_table).values(
+          [ :import_run_id  , :external_id ] ,
+          [ previous_run_id , 'existing'   ] ,
+        )
+
         subject.transition_delete
 
         expect(:stage__example_table).to have_values(
-          [ :import_run_id , :external_id , :transition ] ,
-          [ run_id         , 'existing'   , 'DELETE'    ] ,
+          [ :import_run_id  , :external_id , :transition ] ,
+          [ previous_run_id , 'existing'   , nil         ] ,
+          [ run_id          , 'existing'   , 'DELETE'    ] ,
         )
       end
     end
@@ -165,17 +178,19 @@ module BeetleETL
         )
 
         insert_into(:stage__example_table).values(
-          [ :import_run_id , :external_id , :payload          , :foo_id , :external_foo_id ] ,
-          [ run_id         , 'existing'   , 'updated content' , 1       , 'ignored_column' ] ,
-          [ run_id         , 'deleted'    , 'updated content' , 2       , 'ignored_column' ] ,
+          [ :import_run_id  , :external_id , :payload          , :foo_id , :external_foo_id ] ,
+          [ previous_run_id , 'deleted'    , 'updated content' , 2       , 'ignored_column' ] ,
+          [ run_id          , 'existing'   , 'updated content' , 1       , 'ignored_column' ] ,
+          [ run_id          , 'deleted'    , 'updated content' , 2       , 'ignored_column' ] ,
         )
 
         subject.transition_undelete
 
         expect(:stage__example_table).to have_values(
-          [ :import_run_id , :external_id , :transition ] ,
-          [ run_id         , 'existing'   , nil         ] ,
-          [ run_id         , 'deleted'    , 'UNDELETE'  ] ,
+          [ :import_run_id  , :external_id , :transition ] ,
+          [ previous_run_id , 'deleted'    , nil         ] ,
+          [ run_id          , 'existing'   , nil         ] ,
+          [ run_id          , 'deleted'    , 'UNDELETE'  ] ,
         )
       end
     end

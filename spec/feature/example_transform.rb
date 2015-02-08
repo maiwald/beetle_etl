@@ -3,12 +3,14 @@ import :organisations do
     INSERT INTO #{stage_table} (
       external_id,
       import_run_id,
+      address,
       name
     )
 
     SELECT DISTINCT
       o."Name",
       #{import_run_id},
+      o."Adresse",
       o."Name"
 
     FROM source."Organisation" o
