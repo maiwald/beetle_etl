@@ -1,7 +1,5 @@
 module BeetleETL
-  module Import
-
-    extend self
+  class Import
 
     def run
       TaskRunner.new(data_steps).run
