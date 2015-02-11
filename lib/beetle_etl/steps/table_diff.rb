@@ -11,7 +11,7 @@ module BeetleETL
     end
 
     def run
-      %w(create keep update delete undelete).map do |transition|
+      %w(create keep update delete undelete).each do |transition|
         public_send(:"transition_#{transition}")
       end
     end

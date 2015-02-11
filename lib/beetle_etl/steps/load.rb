@@ -12,9 +12,9 @@ module BeetleETL
     end
 
     def run
-      %w(create update delete undelete).map do |transition|
-        Thread.new { public_send(:"load_#{transition}") }
-      end.each(&:join)
+      %w(create update delete undelete).each do |transition|
+        public_send(:"load_#{transition}")
+      end
     end
 
     def dependencies
