@@ -7,6 +7,8 @@ require 'yaml'
 require 'active_support/core_ext/date/calculations'
 require 'active_support/core_ext/numeric/time'
 
+Thread::abort_on_exception = true
+
 describe BeetleETL do
 
   include ExampleSchema
