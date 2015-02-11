@@ -2,7 +2,6 @@ module BeetleETL
   class TableDiff < Step
 
     IMPORTER_COLUMNS = %i[
-      import_run_id
       external_id
       transition
     ]
@@ -21,8 +20,7 @@ module BeetleETL
       database.execute <<-SQL
         UPDATE #{stage_table_name_sql} stage
         SET transition = 'CREATE'
-        WHERE stage.import_run_id = #{run_id}
-        AND NOT EXISTS (
+        WHERE NOT EXISTS (
           SELECT 1
           FROM #{public_table_name} public
           WHERE public.external_id = stage.external_id
@@ -35,8 +33,7 @@ module BeetleETL
       database.execute <<-SQL
         UPDATE #{stage_table_name_sql} stage
         SET transition = 'KEEP'
-        WHERE stage.import_run_id = #{run_id}
-        AND EXISTS (
+        WHERE EXISTS (
           SELECT 1
           FROM #{public_table_name} public
           WHERE public.external_id = stage.external_id
@@ -54,8 +51,7 @@ module BeetleETL
       database.execute <<-SQL
         UPDATE #{stage_table_name_sql} stage
         SET transition = 'UPDATE'
-        WHERE stage.import_run_id = #{run_id}
-        AND EXISTS (
+        WHERE EXISTS (
           SELECT 1
           FROM #{public_table_name} public
           WHERE public.external_id = stage.external_id
@@ -72,16 +68,14 @@ module BeetleETL
     def transition_delete
       database.execute <<-SQL
         INSERT INTO #{stage_table_name_sql}
-          (import_run_id, external_id, transition)
+          (external_id, transition)
         SELECT
-          #{run_id},
           public.external_id,
           'DELETE'
         FROM #{public_table_name_sql} public
         LEFT OUTER JOIN (
           SELECT *
           FROM #{stage_table_name_sql}
-          WHERE import_run_id = #{run_id}
           ) stage
           ON (stage.external_id = public.external_id)
         WHERE stage.external_id IS NULL
@@ -94,8 +88,7 @@ module BeetleETL
       database.execute <<-SQL
         UPDATE #{stage_table_name_sql} stage
         SET transition = 'UNDELETE'
-        WHERE stage.import_run_id = #{run_id}
-        AND EXISTS (
+        WHERE EXISTS (
           SELECT 1
           FROM #{public_table_name_sql} public
           WHERE public.external_id = stage.external_id

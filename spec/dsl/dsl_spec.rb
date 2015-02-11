@@ -31,13 +31,5 @@ module BeetleETL
       end
     end
 
-    describe '#import_run_id' do
-      it 'returns the import run id defined in the config' do
-        id = double(:id)
-        allow(BeetleETL.state).to receive(:run_id) { id }
-        expect(subject.import_run_id).to eql(id)
-      end
-    end
-
   end
 end

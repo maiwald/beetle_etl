@@ -40,8 +40,7 @@ module ExampleSchema
     test_database.create_table :stage__organisations do
       Integer :id
       String :external_id, size: 255
-      foreign_key :import_run_id, :stage__import_runs
-      index [:external_id, :import_run_id]
+      index :external_id
       String :transition, size: 255
 
       String :name, size: 255
@@ -51,17 +50,14 @@ module ExampleSchema
     test_database.create_table :stage__departments do
       Integer :id
       String :external_id, size: 255
-      foreign_key :import_run_id, :stage__import_runs
-      index [:external_id, :import_run_id]
+      index :external_id
       String :transition, size: 255
 
       String :name, size: 255
 
       String :external_organisation_id, size: 255
       Integer :organisation_id
-
     end
-
   end
 
   def drop_stage_tables
@@ -90,7 +86,6 @@ module ExampleSchema
       DateTime :updated_at
       DateTime :deleted_at
     end
-
   end
 
   def drop_target_tables

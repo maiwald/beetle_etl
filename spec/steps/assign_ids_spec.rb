@@ -3,7 +3,6 @@ require 'spec_helper'
 module BeetleETL
   describe AssignIds do
 
-    let(:run_id) { 1 }
     let(:external_source) { 'my_source' }
     subject { AssignIds.new(:example_table) }
 
@@ -14,12 +13,11 @@ module BeetleETL
         config.database = test_database
       end
 
-      allow(BeetleETL).to receive(:state) { double(:state, run_id: run_id) }
+      allow(BeetleETL).to receive(:state) { double(:state) }
 
       test_database.create_schema(:stage)
       test_database.create_table(subject.stage_table_name.to_sym) do
         Integer :id
-        Integer :import_run_id
         String :external_id, size: 255
         String :transition, size: 255
       end
@@ -56,17 +54,17 @@ module BeetleETL
         )
 
         insert_into(subject.stage_table_name.to_sym).values(
-          [ :import_run_id , :external_id , :transition ] ,
-          [ run_id         , 'create_id'  , 'CREATE'    ] ,
-          [ run_id         , 'keep_id'    , 'KEEP'      ] ,
+          [ :external_id , :transition ] ,
+          [ 'create_id'  , 'CREATE'    ] ,
+          [ 'keep_id'    , 'KEEP'      ] ,
         )
 
         subject.assign_new_ids
 
         expect(subject.stage_table_name.to_sym).to have_values(
-          [ :id , :import_run_id , :external_id , :transition ] ,
-          [ 2   , run_id         , 'create_id'  , 'CREATE'    ] ,
-          [ nil , run_id         , 'keep_id'    , 'KEEP'      ] ,
+          [ :id , :external_id , :transition ] ,
+          [ 2   , 'create_id'  , 'CREATE'    ] ,
+          [ nil , 'keep_id'    , 'KEEP'      ] ,
         )
       end
     end
@@ -82,23 +80,23 @@ module BeetleETL
         )
 
         insert_into(subject.stage_table_name.to_sym).values(
-          [ :import_run_id , :external_id  , :transition ] ,
-          [ run_id         , 'create_id'   , 'CREATE'    ] ,
-          [ run_id         , 'keep_id'     , 'KEEP'      ] ,
-          [ run_id         , 'update_id'   , 'UPDATE'    ] ,
-          [ run_id         , 'delete_id'   , 'DELETE'    ] ,
-          [ run_id         , 'undelete_id' , 'UNDELETE'  ] ,
+          [ :external_id  , :transition ] ,
+          [ 'create_id'   , 'CREATE'    ] ,
+          [ 'keep_id'     , 'KEEP'      ] ,
+          [ 'update_id'   , 'UPDATE'    ] ,
+          [ 'delete_id'   , 'DELETE'    ] ,
+          [ 'undelete_id' , 'UNDELETE'  ] ,
         )
 
         subject.map_existing_ids
 
         expect(subject.stage_table_name.to_sym).to have_values(
-          [ :id , :import_run_id , :external_id  , :transition ] ,
-          [ nil , run_id         , 'create_id'   , 'CREATE'    ] ,
-          [ 1   , run_id         , 'keep_id'     , 'KEEP'      ] ,
-          [ 2   , run_id         , 'update_id'   , 'UPDATE'    ] ,
-          [ 3   , run_id         , 'delete_id'   , 'DELETE'    ] ,
-          [ 4   , run_id         , 'undelete_id' , 'UNDELETE'  ] ,
+          [ :id , :external_id  , :transition ] ,
+          [ nil , 'create_id'   , 'CREATE'    ] ,
+          [ 1   , 'keep_id'     , 'KEEP'      ] ,
+          [ 2   , 'update_id'   , 'UPDATE'    ] ,
+          [ 3   , 'delete_id'   , 'DELETE'    ] ,
+          [ 4   , 'undelete_id' , 'UNDELETE'  ] ,
         )
       end
     end

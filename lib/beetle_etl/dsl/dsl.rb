@@ -29,9 +29,5 @@ module BeetleETL
       %Q('[' || #{args.join(%q[ || '|' || ])} || ']')
     end
 
-    def import_run_id
-      BeetleETL.state.run_id
-    end
-
   end
 end

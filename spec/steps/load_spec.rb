@@ -6,8 +6,6 @@ require 'active_support/core_ext/numeric/time'
 module BeetleETL
   describe Load do
 
-    let(:run_id) { 1 }
-    let(:old_run_id) { 5000 }
     let(:external_source) { 'my_source' }
 
     let(:now) { Time.now.beginning_of_day }
@@ -21,12 +19,11 @@ module BeetleETL
         config.database = test_database
       end
 
-      allow(BeetleETL).to receive(:state) { double(:state, run_id: run_id) }
+      allow(BeetleETL).to receive(:state) { double(:state) }
       allow(subject).to receive(:now) { now }
 
       test_database.create_schema(:stage)
       test_database.create_table(subject.stage_table_name.to_sym) do
-        Integer :import_run_id
         Integer :id
         String :external_id, size: 255
         String :transition, size: 20
@@ -80,9 +77,8 @@ module BeetleETL
     describe '#load_create' do
       it 'loads records into the public table' do
         insert_into(subject.stage_table_name.to_sym).values(
-          [ :id , :import_run_id , :external_id  , :transition , :external_foo_id , :foo_id , :payload       ] ,
-          [ 3   , old_run_id     , 'external_id' , 'CREATE'    , 'foo_id'         , 999     , 'some content' ] ,
-          [ 3   , run_id         , 'external_id' , 'CREATE'    , 'foo_id'         , 22      , 'content'      ] ,
+          [ :id , :external_id  , :transition , :external_foo_id , :foo_id , :payload       ] ,
+          [ 3   , 'external_id' , 'CREATE'    , 'foo_id'         , 22      , 'content'      ] ,
         )
 
         subject.load_create
@@ -102,9 +98,8 @@ module BeetleETL
         )
 
         insert_into(subject.stage_table_name.to_sym).values(
-          [ :id , :import_run_id , :external_id  , :transition , :external_foo_id , :foo_id , :payload          ] ,
-          [ 1   , old_run_id     , 'external_id' , 'UPDATE'    , 'foo_id'         , 999     , 'some content'    ] ,
-          [ 1   , run_id         , 'external_id' , 'UPDATE'    , 'foo_id'         , 33      , 'updated content' ] ,
+          [ :id , :external_id  , :transition , :external_foo_id , :foo_id , :payload          ] ,
+          [ 1   , 'external_id' , 'UPDATE'    , 'foo_id'         , 33      , 'updated content' ] ,
         )
 
         subject.load_update
@@ -124,9 +119,8 @@ module BeetleETL
         )
 
         insert_into(subject.stage_table_name.to_sym).values(
-          [ :id , :import_run_id , :external_id  , :transition , :external_foo_id , :foo_id , :payload          ] ,
-          [ 1   , old_run_id     , 'external_id' , 'UPDATE'    , 'foo_id'         , 999     , 'some content'    ] ,
-          [ 1   , run_id         , 'external_id' , 'DELETE'    , 'foo_id'         , 33      , 'updated content' ] ,
+          [ :id , :external_id  , :transition , :external_foo_id , :foo_id , :payload          ] ,
+          [ 1   , 'external_id' , 'DELETE'    , 'foo_id'         , 33      , 'updated content' ] ,
         )
 
         subject.load_delete
@@ -146,9 +140,8 @@ module BeetleETL
         )
 
         insert_into(subject.stage_table_name.to_sym).values(
-          [ :id , :import_run_id , :external_id  , :transition , :external_foo_id , :foo_id , :payload          ] ,
-          [ 1   , old_run_id     , 'external_id' , 'UPDATE'    , 'foo_id'         , 999     , 'some content'    ] ,
-          [ 1   , run_id         , 'external_id' , 'UNDELETE'  , 'foo_id'         , 33      , 'updated content' ] ,
+          [ :id , :external_id  , :transition , :external_foo_id , :foo_id , :payload          ] ,
+          [ 1   , 'external_id' , 'UNDELETE'  , 'foo_id'         , 33      , 'updated content' ] ,
         )
 
         subject.load_undelete

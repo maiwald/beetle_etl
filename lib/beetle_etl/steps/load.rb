@@ -2,7 +2,6 @@ module BeetleETL
   class Load < Step
 
     IMPORTER_COLUMNS = %i[
-      import_run_id
       external_source
       transition
     ]
@@ -34,9 +33,7 @@ module BeetleETL
           '#{just_now}',
           '#{just_now}'
         FROM #{stage_table_name_sql}
-        WHERE
-          import_run_id = #{run_id}
-          AND transition = 'CREATE'
+        WHERE transition = 'CREATE'
       SQL
     end
 
@@ -47,9 +44,7 @@ module BeetleETL
           #{updatable_columns.map { |c| %Q("#{c}" = stage."#{c}") }.join(',')},
           "updated_at" = '#{now}'
         FROM #{stage_table_name_sql} stage
-        WHERE
-          stage.import_run_id = #{run_id}
-          AND stage.id = public.id
+        WHERE stage.id = public.id
           AND stage.transition = 'UPDATE'
       SQL
     end
@@ -63,9 +58,7 @@ module BeetleETL
           updated_at = '#{just_now}',
           deleted_at = '#{just_now}'
         FROM #{stage_table_name_sql} stage
-        WHERE
-          stage.import_run_id = #{run_id}
-          AND stage.id = public.id
+        WHERE stage.id = public.id
           AND stage.transition = 'DELETE'
       SQL
     end
@@ -78,9 +71,7 @@ module BeetleETL
           updated_at = '#{now}',
           deleted_at = NULL
         FROM #{stage_table_name_sql} stage
-        WHERE
-          stage.import_run_id = #{run_id}
-          AND stage.id = public.id
+        WHERE stage.id = public.id
           AND stage.transition = 'UNDELETE'
       SQL
     end
