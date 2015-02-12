@@ -1,11 +1,15 @@
 module BeetleETL
   class DSL
 
-    attr_reader :relations, :query_string
+    attr_reader :column_names, :relations, :query_string
 
     def initialize(table_name)
       @table_name = table_name
       @relations = {}
+    end
+
+    def columns(*column_names)
+      @column_names = column_names
     end
 
     def references(foreign_table, on: foreign_key)

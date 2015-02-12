@@ -1,4 +1,6 @@
 import :organisations do
+  columns :name, :address
+
   query <<-SQL
     INSERT INTO #{stage_table} (
       external_id,
