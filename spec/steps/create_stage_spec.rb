@@ -54,6 +54,7 @@ module BeetleETL
 
         expect(columns[:id][:db_type]).to eq('integer')
         expect(columns[:external_id][:db_type]).to eq('character varying(255)')
+        expect(columns[:transition][:db_type]).to eq('character varying(255)')
 
         expect(columns[:some_string][:db_type]).to eq('character varying(200)')
         expect(columns[:some_integer][:db_type]).to eq('integer')
