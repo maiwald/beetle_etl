@@ -36,28 +36,6 @@ module ExampleSchema
       DateTime :finished_at
       String :state, size: 255
     end
-
-    test_database.create_table :stage__organisations do
-      Integer :id
-      String :external_id, size: 255
-      index :external_id
-      String :transition, size: 255
-
-      String :name, size: 255
-      String :address, size: 255
-    end
-
-    test_database.create_table :stage__departments do
-      Integer :id
-      String :external_id, size: 255
-      index :external_id
-      String :transition, size: 255
-
-      String :name, size: 255
-
-      String :external_organisation_id, size: 255
-      Integer :organisation_id
-    end
   end
 
   def drop_stage_tables

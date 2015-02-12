@@ -13,7 +13,7 @@ module BeetleETL
 
     def run
       database.execute <<-SQL
-        CREATE TEMPORARY TABLE #{stage_table_name_sql} (
+        CREATE TABLE #{stage_table_name_sql} (
           id integer,
           external_id character varying(255),
           transition character varying(255),

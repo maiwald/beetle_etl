@@ -19,6 +19,7 @@ module BeetleETL
   require 'beetle_etl/steps/table_diff'
   require 'beetle_etl/steps/assign_ids'
   require 'beetle_etl/steps/load'
+  require 'beetle_etl/steps/drop_stage'
 
   require 'beetle_etl/task_runner/dependency_resolver'
   require 'beetle_etl/task_runner/task_runner'
