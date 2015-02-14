@@ -19,7 +19,6 @@ module BeetleETL
         config.database = test_database
       end
 
-      allow(BeetleETL).to receive(:state) { double(:state) }
       allow(subject).to receive(:now) { now }
 
       test_database.create_schema(:stage)

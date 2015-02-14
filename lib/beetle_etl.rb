@@ -24,7 +24,6 @@ module BeetleETL
   require 'beetle_etl/task_runner/dependency_resolver'
   require 'beetle_etl/task_runner/task_runner'
 
-  require 'beetle_etl/state'
   require 'beetle_etl/import'
 
   class Configuration
@@ -44,13 +43,9 @@ module BeetleETL
   class << self
 
     def import
-      state.start_import
-
       begin
         Import.new.run
-        state.mark_as_succeeded
       rescue Exception => e
-        state.mark_as_failed
         raise e
       ensure
         @database.disconnect if @database
@@ -76,13 +71,8 @@ module BeetleETL
       end
     end
 
-    def state
-      @state ||= State.new
-    end
-
     def reset
       @config = nil
-      @state = nil
       @database = nil
     end
 

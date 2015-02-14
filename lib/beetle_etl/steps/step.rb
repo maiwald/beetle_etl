@@ -23,10 +23,6 @@ module BeetleETL
       raise DependenciesNotDefinedError
     end
 
-    def run_id
-      BeetleETL.state.run_id
-    end
-
     def external_source
       BeetleETL.config.external_source
     end

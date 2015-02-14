@@ -23,8 +23,6 @@ module BeetleETL
         config.database = test_database
       end
 
-      allow(BeetleETL).to receive(:state) { double(:state) }
-
       test_database.create_table(dependee_a) do
         Integer :id
         String :external_id, size: 255

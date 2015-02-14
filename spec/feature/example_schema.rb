@@ -2,13 +2,11 @@ module ExampleSchema
 
   def create_tables
     create_source_tables
-    create_stage_tables
     create_target_tables
   end
 
   def drop_tables
     drop_source_tables
-    drop_stage_tables
     drop_target_tables
   end
 
@@ -25,21 +23,6 @@ module ExampleSchema
 
   def drop_source_tables
     test_database.drop_schema :source, cascade: true
-  end
-
-  def create_stage_tables
-    test_database.create_schema :stage
-
-    test_database.create_table :stage__import_runs do
-      primary_key :id
-      DateTime :started_at
-      DateTime :finished_at
-      String :state, size: 255
-    end
-  end
-
-  def drop_stage_tables
-    test_database.drop_schema :stage, cascade: true
   end
 
   def create_target_tables

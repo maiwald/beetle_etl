@@ -12,14 +12,10 @@ module BeetleETL
 
     before do
       BeetleETL.configure do |config|
-        config.stage_schema = 'stage'
         config.external_source = external_source
         config.database = test_database
       end
 
-      allow(BeetleETL).to receive(:state) { double(:state) }
-
-      test_database.create_schema(:stage)
       test_database.create_table(subject.stage_table_name.to_sym) do
         String :external_id, size: 255
         String :transition, size: 20

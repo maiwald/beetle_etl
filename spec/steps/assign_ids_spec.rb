@@ -13,9 +13,6 @@ module BeetleETL
         config.database = test_database
       end
 
-      allow(BeetleETL).to receive(:state) { double(:state) }
-
-      test_database.create_schema(:stage)
       test_database.create_table(subject.stage_table_name.to_sym) do
         Integer :id
         String :external_id, size: 255
