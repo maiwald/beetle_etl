@@ -132,7 +132,7 @@ module BeetleETL
     end
 
     describe '#load_undelete' do
-      it 'reinstates deleted records' do
+      it 'restores deleted records' do
         insert_into(:example_table).values(
           [ :id , :external_id  , :external_source , :foo_id , :created_at , :updated_at , :deleted_at , :payload  ] ,
           [ 1   , 'external_id' , external_source  , 22      , yesterday   , yesterday   , nil         , 'content' ] ,
