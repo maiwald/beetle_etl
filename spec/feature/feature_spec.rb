@@ -27,7 +27,6 @@ describe BeetleETL do
       config.transformation_file = File.expand_path('../example_transform.rb', __FILE__)
       config.database_config = database_config
       config.external_source = 'source_name'
-      config.stage_schema = 'stage'
     end
   end
 
