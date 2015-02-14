@@ -10,6 +10,19 @@ module BeetleETL
       end
     end
 
+    describe 'columns' do
+      it 'returns a list of payload column name symbols' do
+        setup = Proc.new do
+          columns :payload_1, 'payload_2'
+        end
+        transformation = Transformation.new(:table, setup)
+
+        expect(transformation.column_names).to match_array([
+          :payload_1, :payload_2
+        ])
+      end
+    end
+
     describe '#relations' do
       it 'returns the list of foreign tables and their foreign key column' do
         setup = Proc.new do

@@ -6,6 +6,10 @@ module BeetleETL
       BeetleETL.database.transaction do
         TaskRunner.new(load_steps).run
       end
+    rescue => e
+      raise e
+    ensure
+      TaskRunner.new(cleanup_steps).run
     end
 
     private
@@ -13,6 +17,7 @@ module BeetleETL
     def data_steps
       transformations.flat_map do |t|
         [
+          CreateStage.new(t.table_name, t.relations, t.column_names),
           Transform.new(t.table_name, t.dependencies, t.query),
           MapRelations.new(t.table_name, t.relations),
           TableDiff.new(t.table_name),
@@ -25,6 +30,10 @@ module BeetleETL
       transformations.map do |t|
         Load.new(t.table_name, t.relations)
       end
+    end
+
+    def cleanup_steps
+      transformations.map { |t| DropStage.new(t.table_name) }
     end
 
     def transformations

@@ -2,7 +2,6 @@ module BeetleETL
   class Load < Step
 
     IMPORTER_COLUMNS = %i[
-      import_run_id
       external_source
       transition
     ]
@@ -13,9 +12,9 @@ module BeetleETL
     end
 
     def run
-      %w(create update delete undelete).map do |transition|
-        Thread.new { public_send(:"load_#{transition}") }
-      end.each(&:join)
+      %w(create update delete undelete).each do |transition|
+        public_send(:"load_#{transition}")
+      end
     end
 
     def dependencies
@@ -26,30 +25,26 @@ module BeetleETL
       just_now = now
 
       database.execute <<-SQL
-        INSERT INTO #{public_table_name}
+        INSERT INTO #{public_table_name_sql}
           (#{data_columns.join(', ')}, external_source, created_at, updated_at)
         SELECT
           #{data_columns.join(', ')},
           '#{external_source}',
           '#{just_now}',
           '#{just_now}'
-        FROM #{stage_table_name}
-        WHERE
-          import_run_id = #{run_id}
-          AND transition = 'CREATE'
+        FROM #{stage_table_name_sql}
+        WHERE transition = 'CREATE'
       SQL
     end
 
     def load_update
       database.execute <<-SQL
-        UPDATE #{public_table_name} public
+        UPDATE #{public_table_name_sql} public
         SET
           #{updatable_columns.map { |c| %Q("#{c}" = stage."#{c}") }.join(',')},
           "updated_at" = '#{now}'
-        FROM #{stage_table_name} stage
-        WHERE
-          stage.import_run_id = #{run_id}
-          AND stage.id = public.id
+        FROM #{stage_table_name_sql} stage
+        WHERE stage.id = public.id
           AND stage.transition = 'UPDATE'
       SQL
     end
@@ -58,29 +53,25 @@ module BeetleETL
       just_now = now
 
       database.execute <<-SQL
-        UPDATE #{public_table_name} public
+        UPDATE #{public_table_name_sql} public
         SET
           updated_at = '#{just_now}',
           deleted_at = '#{just_now}'
-        FROM #{stage_table_name} stage
-        WHERE
-          stage.import_run_id = #{run_id}
-          AND stage.id = public.id
+        FROM #{stage_table_name_sql} stage
+        WHERE stage.id = public.id
           AND stage.transition = 'DELETE'
       SQL
     end
 
     def load_undelete
       database.execute <<-SQL
-        UPDATE #{public_table_name} public
+        UPDATE #{public_table_name_sql} public
         SET
           #{updatable_columns.map { |c| %Q("#{c}" = stage."#{c}") }.join(',')},
           updated_at = '#{now}',
           deleted_at = NULL
-        FROM #{stage_table_name} stage
-        WHERE
-          stage.import_run_id = #{run_id}
-          AND stage.id = public.id
+        FROM #{stage_table_name_sql} stage
+        WHERE stage.id = public.id
           AND stage.transition = 'UNDELETE'
       SQL
     end
@@ -92,7 +83,7 @@ module BeetleETL
     end
 
     def table_columns
-      @table_columns ||= database[:"#{stage_schema}__#{table_name}"].columns
+      @table_columns ||= database[stage_table_name.to_sym].columns
     end
 
     def ignored_columns

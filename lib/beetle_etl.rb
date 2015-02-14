@@ -10,17 +10,20 @@ module BeetleETL
   require 'beetle_etl/dsl/transformation'
   require 'beetle_etl/dsl/transformation_loader'
 
+  require 'beetle_etl/naming'
+
   require 'beetle_etl/steps/step'
+  require 'beetle_etl/steps/create_stage'
   require 'beetle_etl/steps/transform'
   require 'beetle_etl/steps/map_relations'
   require 'beetle_etl/steps/table_diff'
   require 'beetle_etl/steps/assign_ids'
   require 'beetle_etl/steps/load'
+  require 'beetle_etl/steps/drop_stage'
 
   require 'beetle_etl/task_runner/dependency_resolver'
   require 'beetle_etl/task_runner/task_runner'
 
-  require 'beetle_etl/state'
   require 'beetle_etl/import'
 
   class Configuration
@@ -29,23 +32,20 @@ module BeetleETL
       :database,
       :transformation_file,
       :stage_schema,
+      :public_schema,
       :external_source
 
     def initialize
-      @stage_schema = 'stage'
+      @public_schema = 'public'
     end
   end
 
   class << self
 
     def import
-      state.start_import
-
       begin
         Import.new.run
-        state.mark_as_succeeded
       rescue Exception => e
-        state.mark_as_failed
         raise e
       ensure
         @database.disconnect if @database
@@ -71,13 +71,8 @@ module BeetleETL
       end
     end
 
-    def state
-      @state ||= State.new
-    end
-
     def reset
       @config = nil
-      @state = nil
       @database = nil
     end
 

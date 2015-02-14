@@ -4,30 +4,8 @@ describe BeetleETL do
 
   describe '#import' do
     it 'runs the import' do
-      allow(BeetleETL).to receive(:state) { double(:state).as_null_object }
       expect(BeetleETL::Import).to receive_message_chain(:new, :run)
       BeetleETL.import
-    end
-
-    context 'handling state' do
-      it 'starts the import and marks it as finished if no errors are thrown' do
-        allow(BeetleETL::Import).to receive_message_chain(:new, :run)
-
-        expect(BeetleETL.state).to receive(:start_import).ordered
-        expect(BeetleETL.state).to receive(:mark_as_succeeded).ordered
-
-        BeetleETL.import
-      end
-
-      it 'starts the import and marks it as failed if Import.run throws an error' do
-        exception = Exception.new
-        allow(BeetleETL::Import).to receive_message_chain(:new, :run).and_raise(exception)
-
-        expect(BeetleETL.state).to receive(:start_import).ordered
-        expect(BeetleETL.state).to receive(:mark_as_failed).ordered
-
-        expect { BeetleETL.import }.to raise_exception(exception)
-      end
     end
   end
 

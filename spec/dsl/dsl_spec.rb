@@ -7,8 +7,7 @@ module BeetleETL
 
     describe '#stage_table' do
       it 'returns the stage table name including the schema defined in the config' do
-        BeetleETL.configure { |config| config.stage_schema = 'bar' }
-        expect(subject.stage_table).to eql('"bar"."foo_table"')
+        expect(subject.stage_table).to eql(BeetleETL::Naming.stage_table_name_sql(:foo_table))
       end
     end
 
@@ -29,14 +28,6 @@ module BeetleETL
         expect(subject.combined_key('foo', 'bar', 'baz')).to eql(
           %q('[' || foo || '|' || bar || '|' || baz || ']')
         )
-      end
-    end
-
-    describe '#import_run_id' do
-      it 'returns the import run id defined in the config' do
-        id = double(:id)
-        allow(BeetleETL.state).to receive(:run_id) { id }
-        expect(subject.import_run_id).to eql(id)
       end
     end
 

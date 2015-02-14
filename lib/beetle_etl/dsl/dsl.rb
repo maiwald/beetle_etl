@@ -1,11 +1,15 @@
 module BeetleETL
   class DSL
 
-    attr_reader :relations, :query_string
+    attr_reader :column_names, :relations, :query_string
 
     def initialize(table_name)
       @table_name = table_name
       @relations = {}
+    end
+
+    def columns(*column_names)
+      @column_names = column_names
     end
 
     def references(foreign_table, on: foreign_key)
@@ -18,7 +22,7 @@ module BeetleETL
 
 
     def stage_table
-      %Q("#{BeetleETL.config.stage_schema}"."#{@table_name}")
+      BeetleETL::Naming.stage_table_name_sql(@table_name)
     end
 
     def external_source
@@ -27,10 +31,6 @@ module BeetleETL
 
     def combined_key(*args)
       %Q('[' || #{args.join(%q[ || '|' || ])} || ']')
-    end
-
-    def import_run_id
-      BeetleETL.state.run_id
     end
 
   end

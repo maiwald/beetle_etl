@@ -10,6 +10,10 @@ module BeetleETL
       (@parsed = DSL.new(table_name)).instance_eval(&setup)
     end
 
+    def column_names
+      @parsed.column_names.map(&:to_sym)
+    end
+
     def relations
       @parsed.relations
     end

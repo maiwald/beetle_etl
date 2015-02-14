@@ -4,6 +4,7 @@ module BeetleETL
 
   class Step
 
+    include BeetleETL::Naming
     attr_reader :table_name
 
     def initialize(table_name)
@@ -20,22 +21,6 @@ module BeetleETL
 
     def dependencies
       raise DependenciesNotDefinedError
-    end
-
-    def stage_table_name
-      %Q("#{stage_schema}"."#{table_name}")
-    end
-
-    def public_table_name
-      %Q("#{table_name}")
-    end
-
-    def run_id
-      BeetleETL.state.run_id
-    end
-
-    def stage_schema
-      BeetleETL.config.stage_schema
     end
 
     def external_source
