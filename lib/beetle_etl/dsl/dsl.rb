@@ -21,8 +21,8 @@ module BeetleETL
     end
 
 
-    def stage_table
-      BeetleETL::Naming.stage_table_name_sql(@table_name)
+    def stage_table(table_name = nil)
+      BeetleETL::Naming.stage_table_name_sql(table_name || @table_name)
     end
 
     def external_source
