@@ -1,11 +1,12 @@
 module BeetleETL
   class DSL
 
-    attr_reader :column_names, :relations, :query_string
+    attr_reader :column_names, :relations, :query_strings
 
     def initialize(table_name)
       @table_name = table_name
       @relations = {}
+      @query_strings = []
     end
 
     def columns(*column_names)
@@ -17,7 +18,7 @@ module BeetleETL
     end
 
     def query(query)
-      @query_string = query
+      @query_strings << query
     end
 
     # query helper methods

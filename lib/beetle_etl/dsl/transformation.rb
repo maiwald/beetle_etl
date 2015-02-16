@@ -23,7 +23,7 @@ module BeetleETL
     end
 
     def query
-      @parsed.query_string
+      @parsed.query_strings.join(';')
     end
 
   end

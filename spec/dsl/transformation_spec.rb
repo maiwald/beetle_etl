@@ -50,7 +50,6 @@ module BeetleETL
 
     describe '#query' do
       it 'returns the query interpolating methods in scope' do
-
         setup = Proc.new do
           def foo; "foo_string"; end
           query "SELECT '#{foo}' FROM some_table"
@@ -59,6 +58,18 @@ module BeetleETL
 
         expect(transformation.query).to eql(
           "SELECT 'foo_string' FROM some_table"
+        )
+      end
+
+      it 'concatenates multiple queries' do
+        setup = Proc.new do
+          query "SOME QUERY"
+          query "ANOTHER QUERY"
+        end
+        transformation = Transformation.new(:table, setup)
+
+        expect(transformation.query).to eql(
+          "SOME QUERY;ANOTHER QUERY"
         )
       end
     end
