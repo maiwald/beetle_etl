@@ -27,11 +27,13 @@ module BeetleETL
       it 'returns the list of foreign tables and their foreign key column' do
         setup = Proc.new do
           references :foreign_table, on: :foreign_table_id
+          references :another_foreign_table, on: :another_foreign_table_id
         end
         transformation = Transformation.new(:table, setup)
 
         expect(transformation.relations).to eql({
-          foreign_table_id: :foreign_table
+          foreign_table_id: :foreign_table,
+          another_foreign_table_id: :another_foreign_table
         })
       end
     end
