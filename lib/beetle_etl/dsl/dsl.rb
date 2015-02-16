@@ -20,13 +20,10 @@ module BeetleETL
       @query_string = query
     end
 
+    # query helper methods
 
     def stage_table(table_name = nil)
       BeetleETL::Naming.stage_table_name_sql(table_name || @table_name)
-    end
-
-    def external_source
-      'source'
     end
 
     def combined_key(*args)

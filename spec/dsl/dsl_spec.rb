@@ -19,12 +19,6 @@ module BeetleETL
       end
     end
 
-    describe '#external_source' do
-      it 'returns the external source‘s identifier' do
-        expect(subject.external_source).to eql('source')
-      end
-    end
-
     describe '#combined_key' do
       it 'returns an SQL string for combined external ids' do
         expect(subject.combined_key('foo', 'bar')).to eql(
