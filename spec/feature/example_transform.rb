@@ -1,3 +1,9 @@
+helpers do
+  def source_schema_helper
+    'source'
+  end
+end
+
 import :organisations do
   columns :name, :address
 
@@ -13,7 +19,7 @@ import :organisations do
       o."Adresse",
       o."Name"
 
-    FROM source."Organisation" o
+    FROM #{source_schema_helper}."Organisation" o
   SQL
 end
 
@@ -33,6 +39,6 @@ import :departments do
       o."Abteilung",
       o."Name"
 
-    FROM source."Organisation" o
+    FROM #{source_schema_helper}."Organisation" o
   SQL
 end

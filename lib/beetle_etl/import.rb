@@ -37,7 +37,7 @@ module BeetleETL
     end
 
     def transformations
-      @transformations ||= TransformationLoader.load
+      @transformations ||= TransformationLoader.new.load
     end
 
   end

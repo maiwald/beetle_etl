@@ -51,12 +51,16 @@ module BeetleETL
     end
 
     describe '#query' do
-      it 'returns the query interpolating methods in scope' do
-        setup = Proc.new do
+      it 'returns the query interpolating methods defined as helpers' do
+        helpers = Proc.new do
           def foo; "foo_string"; end
+        end
+
+        setup = Proc.new do
           query "SELECT '#{foo}' FROM some_table"
         end
-        transformation = Transformation.new(:table, setup)
+
+        transformation = Transformation.new(:table, setup, helpers)
 
         expect(transformation.query).to eql(
           "SELECT 'foo_string' FROM some_table"

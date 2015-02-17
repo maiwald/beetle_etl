@@ -5,9 +5,12 @@ module BeetleETL
 
     attr_reader :table_name
 
-    def initialize(table_name, setup)
+    def initialize(table_name, setup, helpers = nil)
       @table_name = table_name
-      (@parsed = DSL.new(table_name)).instance_eval(&setup)
+      @parsed = DSL.new(table_name).tap do |dsl|
+        dsl.instance_eval(&helpers) if helpers
+        dsl.instance_eval(&setup)
+      end
     end
 
     def column_names

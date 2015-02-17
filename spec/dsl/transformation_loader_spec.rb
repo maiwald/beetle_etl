@@ -4,6 +4,8 @@ require 'tempfile'
 module BeetleETL
   describe TransformationLoader do
 
+    subject { TransformationLoader.new }
+
     before :example do
       data_file = tempfile_with_contents <<-FILE
         import :foo do
@@ -13,6 +15,10 @@ module BeetleETL
         import :bar do
           'bar'
         end
+
+        helpers do
+          "baz"
+        end
       FILE
 
       BeetleETL.configure do |config|
@@ -21,16 +27,17 @@ module BeetleETL
     end
 
     describe '#load' do
-      it 'loads runlist entries from the data file' do
-        expect(Transformation).to receive(:new) do |table_name, config|
+      it 'loads transformations from the data file' do
+        expect(Transformation).to receive(:new) do |table_name, config, helpers|
           expect(table_name.to_s).to eql(config.call)
+          expect(helpers.call).to eql("baz")
         end.exactly(2).times
 
         subject.load
       end
 
-      it 'adds every runlist entry to the entries array' do
-        allow(Transformation).to receive(:new) do |table_name, config|
+      it 'returns the list of transformations' do
+        allow(Transformation).to receive(:new) do |table_name, config, helpers|
           table_name
         end
 
