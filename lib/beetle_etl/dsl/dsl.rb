@@ -5,6 +5,7 @@ module BeetleETL
 
     def initialize(table_name)
       @table_name = table_name
+      @column_names = []
       @relations = {}
       @query_strings = []
     end

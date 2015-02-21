@@ -21,6 +21,12 @@ module BeetleETL
           :payload_1, :payload_2
         ])
       end
+
+      it 'defaults to an empty array if no columns are defined' do
+        transformation = Transformation.new(:table, Proc.new {})
+
+        expect(transformation.column_names).to match_array([])
+      end
     end
 
     describe '#relations' do
