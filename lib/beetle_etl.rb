@@ -1,6 +1,7 @@
 require 'beetle_etl/version'
 
 require 'sequel'
+require 'logger'
 
 module BeetleETL
 
@@ -33,10 +34,12 @@ module BeetleETL
       :transformation_file,
       :stage_schema,
       :public_schema,
-      :external_source
+      :external_source,
+      :logger
 
     def initialize
       @public_schema = 'public'
+      @logger = ::Logger.new(STDOUT)
     end
   end
 
@@ -58,6 +61,10 @@ module BeetleETL
 
     def config
       @config ||= Configuration.new
+    end
+
+    def logger
+      config.logger
     end
 
     def database

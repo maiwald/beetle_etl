@@ -33,15 +33,25 @@ module BeetleETL
 
     def run_task_async(task)
       Thread.new do
-        started_at = now
-        result = task.run
-        finished_at = now
+        begin
+          BeetleETL.logger.info("started task #{task.name}")
 
-        @queue.push [task.name, {
-          started_at: started_at,
-          finished_at: finished_at,
-          result: result,
-        }]
+          started_at = Time.now
+          task.run
+          finished_at = Time.now
+
+          duration = Time.at(finished_at - started_at).utc.strftime("%H:%M:%S")
+          BeetleETL.logger.info("finished #{task.name} in #{duration}")
+
+          @queue.push [task.name, {
+            started_at: started_at,
+            finished_at: finished_at,
+          }]
+
+        rescue => e
+          BeetleETL.logger.fatal(e.message)
+          raise e
+        end
       end
     end
 
@@ -61,10 +71,6 @@ module BeetleETL
 
     def all_tasks_complete?
       @tasks.map(&:name).to_set == completed.to_set
-    end
-
-    def now
-      Time.now
     end
 
   end

@@ -2,14 +2,13 @@ module BeetleETL
   class Import
 
     def run
-      TaskRunner.new(data_steps).run
+      result = TaskRunner.new(data_steps).run
       BeetleETL.database.transaction do
-        TaskRunner.new(load_steps).run
+        result.merge! TaskRunner.new(load_steps).run
       end
-    rescue => e
-      raise e
     ensure
-      TaskRunner.new(cleanup_steps).run
+      result.merge! TaskRunner.new(cleanup_steps).run
+      return result
     end
 
     private
