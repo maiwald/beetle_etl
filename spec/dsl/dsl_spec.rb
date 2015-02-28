@@ -22,13 +22,13 @@ module BeetleETL
     describe '#combined_key' do
       it 'returns an SQL string for combined external ids' do
         expect(subject.combined_key('foo', 'bar')).to eql(
-          %q('[' || foo || '|' || bar || ']')
+          %q('[' || foo || ',' || bar || ']')
         )
       end
 
       it 'works with multiple arguments' do
         expect(subject.combined_key('foo', 'bar', 'baz')).to eql(
-          %q('[' || foo || '|' || bar || '|' || baz || ']')
+          %q('[' || foo || ',' || bar || ',' || baz || ']')
         )
       end
     end

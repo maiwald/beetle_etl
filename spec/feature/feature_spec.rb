@@ -65,10 +65,10 @@ describe BeetleETL do
 
     expect(:departments).to have_values(
       [ :id                         , :external_id , :organisation_id          , :external_source , :name     , :created_at , :updated_at , :deleted_at ] ,
-      [ department_id('[Apple|1]')  , '[Apple|1]'  , organisation_id('Apple')  , 'source_name'    , 'iPhone'  , time1       , time1       , nil         ] ,
-      [ department_id('[Apple|2]')  , '[Apple|2]'  , organisation_id('Apple')  , 'source_name'    , 'MacBook' , time1       , time1       , nil         ] ,
-      [ department_id('[Google|3]') , '[Google|3]' , organisation_id('Google') , 'source_name'    , 'Gmail'   , time1       , time1       , nil         ] ,
-      [ department_id('[Audi|4]')   , '[Audi|4]'   , organisation_id('Audi')   , 'source_name'    , 'A4'      , time1       , time1       , nil         ] ,
+      [ department_id('[Apple,1]')  , '[Apple,1]'  , organisation_id('Apple')  , 'source_name'    , 'iPhone'  , time1       , time1       , nil         ] ,
+      [ department_id('[Apple,2]')  , '[Apple,2]'  , organisation_id('Apple')  , 'source_name'    , 'MacBook' , time1       , time1       , nil         ] ,
+      [ department_id('[Google,3]') , '[Google,3]' , organisation_id('Google') , 'source_name'    , 'Gmail'   , time1       , time1       , nil         ] ,
+      [ department_id('[Audi,4]')   , '[Audi,4]'   , organisation_id('Audi')   , 'source_name'    , 'A4'      , time1       , time1       , nil         ] ,
     )
 
     test_database[:source__Organisation].truncate
@@ -97,10 +97,10 @@ describe BeetleETL do
 
     expect(:departments).to have_values(
       [ :id                         , :external_id , :organisation_id          , :external_source , :name     , :created_at , :updated_at , :deleted_at ] ,
-      [ department_id('[Apple|1]')  , '[Apple|1]'  , organisation_id('Apple')  , 'source_name'    , 'iPhone'  , time1       , time1       , nil         ] ,
-      [ department_id('[Apple|2]')  , '[Apple|2]'  , organisation_id('Apple')  , 'source_name'    , 'MacBook' , time1       , time1       , nil         ] ,
-      [ department_id('[Google|3]') , '[Google|3]' , organisation_id('Google') , 'source_name'    , 'Google+' , time1       , time2       , nil         ] ,
-      [ department_id('[Audi|4]')   , '[Audi|4]'   , organisation_id('Audi')   , 'source_name'    , 'A4'      , time1       , time2       , time2       ] ,
+      [ department_id('[Apple,1]')  , '[Apple,1]'  , organisation_id('Apple')  , 'source_name'    , 'iPhone'  , time1       , time1       , nil         ] ,
+      [ department_id('[Apple,2]')  , '[Apple,2]'  , organisation_id('Apple')  , 'source_name'    , 'MacBook' , time1       , time1       , nil         ] ,
+      [ department_id('[Google,3]') , '[Google,3]' , organisation_id('Google') , 'source_name'    , 'Google+' , time1       , time2       , nil         ] ,
+      [ department_id('[Audi,4]')   , '[Audi,4]'   , organisation_id('Audi')   , 'source_name'    , 'A4'      , time1       , time2       , time2       ] ,
     )
 
     test_database[:source__Organisation].truncate
@@ -129,10 +129,10 @@ describe BeetleETL do
 
     expect(:departments).to have_values(
       [ :id                         , :external_id , :organisation_id          , :external_source , :name     , :created_at , :updated_at , :deleted_at ] ,
-      [ department_id('[Apple|1]')  , '[Apple|1]'  , organisation_id('Apple')  , 'source_name'    , 'iPhone'  , time1       , time1       , nil         ] ,
-      [ department_id('[Apple|2]')  , '[Apple|2]'  , organisation_id('Apple')  , 'source_name'    , 'MacBook' , time1       , time1       , nil         ] ,
-      [ department_id('[Google|3]') , '[Google|3]' , organisation_id('Google') , 'source_name'    , 'Google+' , time1       , time2       , nil         ] ,
-      [ department_id('[Audi|4]')   , '[Audi|4]'   , organisation_id('Audi')   , 'source_name'    , 'A4'      , time1       , time3       , nil         ] ,
+      [ department_id('[Apple,1]')  , '[Apple,1]'  , organisation_id('Apple')  , 'source_name'    , 'iPhone'  , time1       , time1       , nil         ] ,
+      [ department_id('[Apple,2]')  , '[Apple,2]'  , organisation_id('Apple')  , 'source_name'    , 'MacBook' , time1       , time1       , nil         ] ,
+      [ department_id('[Google,3]') , '[Google,3]' , organisation_id('Google') , 'source_name'    , 'Google+' , time1       , time2       , nil         ] ,
+      [ department_id('[Audi,4]')   , '[Audi,4]'   , organisation_id('Audi')   , 'source_name'    , 'A4'      , time1       , time3       , nil         ] ,
     )
 
     test_database[:source__Organisation].truncate
