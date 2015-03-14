@@ -22,7 +22,9 @@ module BeetleETL
             payload_column_definitions,
             relation_column_definitions
           ].compact.join(',')}
-        )
+        );
+
+        #{index_definitions}
       SQL
     end
 
@@ -43,6 +45,13 @@ module BeetleETL
         SQL
       end
       definitions.join(',') if definitions.any?
+    end
+
+    def index_definitions
+      index_columns = [:external_id] + @relations.keys.map { |c| "external_#{c}" }
+      index_columns.map do |column_name|
+        "CREATE INDEX ON #{stage_table_name_sql} (#{column_name})"
+      end.join(";")
     end
 
     def column_type(column_name)
