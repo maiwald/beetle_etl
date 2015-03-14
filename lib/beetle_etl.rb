@@ -48,8 +48,6 @@ module BeetleETL
     def import
       begin
         Import.new.run
-      rescue Exception => e
-        raise e
       ensure
         @database.disconnect if @database
       end
