@@ -11,6 +11,7 @@ RSpec.configure do |config|
 
   config.around(:each) do |example|
     BeetleETL.reset
+
     if example.metadata[:feature]
       example.run
     else
