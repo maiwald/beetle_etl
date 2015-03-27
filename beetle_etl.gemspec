@@ -25,4 +25,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec', '>= 3.0.0'
   spec.add_development_dependency 'timecop', '>= 0.7.0'
   spec.add_development_dependency 'pg', '>= 0.18.0'
+  spec.add_development_dependency 'unindent', '~> 1.0'
 end

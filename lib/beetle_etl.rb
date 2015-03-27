@@ -26,6 +26,7 @@ module BeetleETL
   require 'beetle_etl/step_runner/async_step_runner'
 
   require 'beetle_etl/import'
+  require 'beetle_etl/reporter'
 
   class Configuration
     attr_accessor \
@@ -47,7 +48,9 @@ module BeetleETL
 
     def import
       begin
-        Import.new.run
+        report = Import.new.run
+        Reporter.new(report).log_summary
+        report
       ensure
         @database.disconnect if @database
       end
