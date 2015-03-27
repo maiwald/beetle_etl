@@ -38,37 +38,24 @@ module BeetleETL
     end
 
     it "loggs a summary of all step times by table name" do
-
-      # the format i would actually like :)
-
-      # organisations
-      # ========================
-      #   Transform:    00:10:00
-      #   MapRelations: 00:10:00
-      #   Load:         00:10:00
-      #   ----------------------
-      #                 00:30:00
-
-      # departments
-      # ========================
-      #      Transform: 00:12:00
-      #   MapRelations: 00:08:00
-      #           Load: 01:31:39
-      #   ----------------------
-      #                 01:11:39
-
       expect(BeetleETL.logger).to receive(:info).with <<-LOG.unindent
 
 
-        organisations: 00:30:00
-          Transform: 00:10:00
+        organisations
+        ========================
+          Transform:    00:10:00
           MapRelations: 00:10:00
-          Load: 00:10:00
+          Load:         00:10:00
+        ------------------------
+                        00:30:00
 
-        departments: 01:31:39
-          Transform: 00:12:00
+        departments
+        ========================
+          Transform:    00:12:00
           MapRelations: 00:08:00
-          Load: 01:11:39
+          Load:         01:11:39
+        ------------------------
+                        01:31:39
       LOG
 
       Reporter.new(report).log_summary
