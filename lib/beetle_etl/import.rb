@@ -1,22 +1,29 @@
+require 'active_support/core_ext/hash/deep_merge'
+
 module BeetleETL
   class Import
 
     def run
-      result = TaskRunner.new(data_steps).run
-      BeetleETL.database.transaction do
-        result.merge! TaskRunner.new(load_steps).run
-      end
+      setup
+      import
     ensure
-      result.merge! TaskRunner.new(cleanup_steps).run
-      return result
+      cleanup
     end
 
     private
 
+    def import
+      data_report = AsyncStepRunner.new(data_steps).run
+      load_report = BeetleETL.database.transaction do
+        AsyncStepRunner.new(load_steps).run
+      end
+
+      data_report.deep_merge load_report
+    end
+
     def data_steps
       transformations.flat_map do |t|
         [
-          CreateStage.new(t.table_name, t.relations, t.column_names),
           Transform.new(t.table_name, t.dependencies, t.query),
           MapRelations.new(t.table_name, t.relations),
           TableDiff.new(t.table_name),
@@ -31,8 +38,16 @@ module BeetleETL
       end
     end
 
-    def cleanup_steps
-      transformations.map { |t| DropStage.new(t.table_name) }
+    def setup
+      transformations.each do |t|
+        CreateStage.new(t.table_name, t.relations, t.column_names).run
+      end
+    end
+
+    def cleanup
+      transformations.each do |t|
+        DropStage.new(t.table_name).run
+      end
     end
 
     def transformations

@@ -8,7 +8,7 @@ module BeetleETL
     end
 
     def dependencies
-      Set.new(@dependencies.map { |d| self.class.step_name(d) }) << CreateStage.step_name(table_name)
+      Set.new(@dependencies.map { |d| self.class.step_name(d) })
     end
 
     def run
