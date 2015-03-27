@@ -15,7 +15,6 @@ module BeetleETL
           [
             'some_table: Transform',
             'some_other_table: Transform',
-            'example_table: CreateStage',
           ].to_set
         )
       end

@@ -22,10 +22,11 @@ module BeetleETL
   require 'beetle_etl/steps/load'
   require 'beetle_etl/steps/drop_stage'
 
-  require 'beetle_etl/task_runner/dependency_resolver'
-  require 'beetle_etl/task_runner/task_runner'
+  require 'beetle_etl/step_runner/dependency_resolver'
+  require 'beetle_etl/step_runner/async_step_runner'
 
   require 'beetle_etl/import'
+  require 'beetle_etl/reporter'
 
   class Configuration
     attr_accessor \
@@ -47,7 +48,9 @@ module BeetleETL
 
     def import
       begin
-        Import.new.run
+        report = Import.new.run
+        Reporter.new(report).log_summary
+        report
       ensure
         @database.disconnect if @database
       end

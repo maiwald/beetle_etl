@@ -3,9 +3,13 @@ require 'spec_helper'
 describe BeetleETL do
 
   describe '#import' do
-    it 'runs the import' do
-      expect(BeetleETL::Import).to receive_message_chain(:new, :run)
-      BeetleETL.import
+    it 'runs the import with reporting' do
+      report = double(:report)
+      reporter = double(:reporter, log_summary: nil)
+
+      expect(BeetleETL::Import).to receive_message_chain(:new, :run).and_return report
+      expect(BeetleETL::Reporter).to receive(:new).with(report).and_return reporter
+      expect(BeetleETL.import).to eql(report)
     end
   end
 
