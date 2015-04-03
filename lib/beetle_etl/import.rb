@@ -10,7 +10,11 @@ module BeetleETL
       cleanup
     end
 
-    private
+    def setup
+      transformations.each do |t|
+        CreateStage.new(t.table_name, t.relations, t.column_names).run
+      end
+    end
 
     def import
       data_report = AsyncStepRunner.new(data_steps).run
@@ -20,6 +24,14 @@ module BeetleETL
 
       data_report.deep_merge load_report
     end
+
+    def cleanup
+      transformations.each do |t|
+        DropStage.new(t.table_name).run
+      end
+    end
+
+    private
 
     def data_steps
       transformations.flat_map do |t|
@@ -35,18 +47,6 @@ module BeetleETL
     def load_steps
       transformations.map do |t|
         Load.new(t.table_name, t.relations)
-      end
-    end
-
-    def setup
-      transformations.each do |t|
-        CreateStage.new(t.table_name, t.relations, t.column_names).run
-      end
-    end
-
-    def cleanup
-      transformations.each do |t|
-        DropStage.new(t.table_name).run
       end
     end
 

@@ -37,7 +37,7 @@ end
 
 RSpec::Matchers.define :have_values do |*rows|
   match do |table_description|
-    dataset = test_database[table_description]
+    dataset = test_database[table_description.to_sym]
 
     columns = rows[0].map(&:to_sym)
     values = rows[1..-1]

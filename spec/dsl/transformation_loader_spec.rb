@@ -1,12 +1,11 @@
 require 'spec_helper'
-require 'tempfile'
 
 module BeetleETL
   describe TransformationLoader do
 
     subject { TransformationLoader.new }
 
-    before :example do
+    before do
       data_file = tempfile_with_contents <<-FILE
         import :foo do
           'foo'
@@ -44,13 +43,6 @@ module BeetleETL
         transformations = subject.load
 
         expect(transformations).to eql(%i[foo bar])
-      end
-    end
-
-    def tempfile_with_contents(contents)
-      Tempfile.new('transform').tap do |file|
-        file.write(contents)
-        file.close
       end
     end
 
