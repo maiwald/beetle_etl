@@ -1,4 +1,8 @@
 module BeetleETL
+
+  ColumnDefinitionNotFoundError = Class.new(StandardError)
+  NoColumnsDefinedError = Class.new(StandardError)
+
   class CreateStage < Step
 
     def initialize(table_name, relations, column_names)
@@ -18,10 +22,7 @@ module BeetleETL
           external_id character varying(255),
           transition character varying(255),
 
-          #{[
-            payload_column_definitions,
-            relation_column_definitions
-          ].compact.join(',')}
+          #{column_definitions}
         );
 
         #{index_definitions}
@@ -29,6 +30,22 @@ module BeetleETL
     end
 
     private
+
+    def column_definitions
+      definitions = [
+        payload_column_definitions,
+        relation_column_definitions
+      ].compact
+
+      if definitions.empty?
+        raise NoColumnsDefinedError.new <<-MSG
+          Transformation for #{table_name} has no column definitions.
+          Either add an array of columns or references to other tables.
+        MSG
+      end
+
+      definitions.join(',')
+    end
 
     def payload_column_definitions
       definitions = (@column_names - @relations.keys).map do |column_name|
@@ -60,6 +77,12 @@ module BeetleETL
           acc[name.to_sym] = schema.fetch(:db_type)
           acc
         end
+
+      unless @column_types.has_key?(column_name)
+        raise ColumnDefinitionNotFoundError.new <<-MSG
+          Table "#{table_name}" has no column "#{column_name}".
+        MSG
+      end
 
       @column_types[column_name]
     end

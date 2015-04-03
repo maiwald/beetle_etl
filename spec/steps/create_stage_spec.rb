@@ -83,6 +83,18 @@ module BeetleETL
         columns = [:some_string, :dependee_a_id]
         CreateStage.new(:example_table, @relations, columns).run
       end
+
+      it 'raises an error if no columns and no relations are defined' do
+        expect do
+          CreateStage.new(:example_table, {}, []).run
+        end.to raise_error(BeetleETL::NoColumnsDefinedError)
+      end
+
+      it 'raises an error when given columns with no definition' do
+        expect do
+          CreateStage.new(:example_table, @relations, [:undefined_column]).run
+        end.to raise_error(BeetleETL::ColumnDefinitionNotFoundError)
+      end
     end
 
   end
