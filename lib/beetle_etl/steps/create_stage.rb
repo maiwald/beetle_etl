@@ -11,10 +11,6 @@ module BeetleETL
       @column_names = column_names
     end
 
-    def dependencies
-      Set.new
-    end
-
     def run
       database.execute <<-SQL
         CREATE UNLOGGED TABLE #{stage_table_name_sql} (

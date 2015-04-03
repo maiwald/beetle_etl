@@ -1,7 +1,5 @@
 module BeetleETL
 
-  DependenciesNotDefinedError = Class.new(StandardError)
-
   class Step
 
     include BeetleETL::Naming
@@ -20,7 +18,7 @@ module BeetleETL
     end
 
     def dependencies
-      raise DependenciesNotDefinedError
+      Set.new
     end
 
     def external_source

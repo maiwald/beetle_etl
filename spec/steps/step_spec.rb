@@ -27,8 +27,8 @@ module BeetleETL
     end
 
     describe '#dependencies' do
-      it 'raises an exception' do
-        expect { subject.dependencies }.to raise_error(DependenciesNotDefinedError)
+      it 'returns an empty set' do
+        expect(subject.dependencies).to eql(Set.new)
       end
     end
 
