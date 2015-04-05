@@ -1,6 +1,8 @@
 module BeetleETL
   module Testing
 
+    require 'beetle_etl/testing/test_wrapper'
+
     TargetTableNotFoundError = Class.new(StandardError)
     NoTransformationFoundError = Class.new(StandardError)
 
@@ -14,13 +16,8 @@ module BeetleETL
         end
       end
 
-      import = Import.new
-      begin
-        import.setup
-        block.call
-      ensure
-        import.cleanup
-      end
+      test_wrapper = TestWrapper.new(table_names)
+      test_wrapper.run block
     end
 
     def run_transformation(table_name)

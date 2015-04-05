@@ -44,14 +44,31 @@ describe "BeetleETL:Testing" do
       end
     end
 
-    it "makes stage tables available in the block" do
-      with_stage_tables_for(:organisations, :some_table) do
-        expect(test_database.table_exists?(stage_table_name(:organisations))).to be_truthy
-        expect(test_database.table_exists?(stage_table_name(:some_table))).to be_truthy
+    it "runs the code inside the block" do
+      check = false
+
+      with_stage_tables_for :organisations, :some_table do
+        check = true
       end
 
-      expect(test_database.table_exists?(stage_table_name(:organisations))).to be_falsey
-      expect(test_database.table_exists?(stage_table_name(:some_table))).to be_falsey
+      expect(check).to eql(true)
+    end
+
+    it "makes stage tables available in the block" do
+      with_stage_tables_for(:organisations, :some_table) do
+        expect(stage_table_exists?(:organisations)).to be_truthy
+        expect(stage_table_exists?(:some_table)).to be_truthy
+      end
+
+      expect(stage_table_exists?(:organisations)).to be_falsey
+      expect(stage_table_exists?(:some_table)).to be_falsey
+    end
+
+    it "only makes the given stage tables available in the block" do
+      with_stage_tables_for(:organisations) do
+        expect(stage_table_exists?(:organisations)).to be_truthy
+        expect(stage_table_exists?(:some_table)).to be_falsey
+      end
     end
 
     it "allows the transformation to be run insiede the block" do
@@ -64,12 +81,23 @@ describe "BeetleETL:Testing" do
         )
       end
     end
-
   end
 
   it "raises an error if the target table cannot be found" do
     expect do
       with_stage_tables_for(:organisations)
     end.to raise_error(BeetleETL::Testing::TargetTableNotFoundError)
+  end
+
+  def stage_table_exists?(table_name)
+    1 == test_database.execute(<<-SQL)
+      SELECT 1
+      FROM   pg_catalog.pg_class c
+      JOIN   pg_catalog.pg_namespace n
+        ON (n.oid = c.relnamespace)
+      WHERE  n.nspname = 'public'
+      AND    c.relname = '#{stage_table_name(table_name)}'
+      AND    c.relkind = 'r'
+    SQL
   end
 end
