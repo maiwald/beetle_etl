@@ -13,7 +13,7 @@ module BeetleETL
 
     def run
       database.execute <<-SQL
-        CREATE UNLOGGED TABLE #{stage_table_name_sql} (
+        CREATE UNLOGGED TABLE IF NOT EXISTS #{stage_table_name_sql} (
           id integer,
           external_id character varying(255),
           transition character varying(255),
@@ -21,7 +21,9 @@ module BeetleETL
           #{column_definitions}
         );
 
-        #{index_definitions}
+        #{index_definitions};
+
+        TRUNCATE TABLE #{stage_table_name_sql} RESTART IDENTITY CASCADE;
       SQL
     end
 
