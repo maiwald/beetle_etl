@@ -36,7 +36,7 @@ describe BeetleETL do
   end
 
   it 'performs all possible transitions', :feature do
-    # create, keep, update, delete, undelete
+    # create, keep, update, delete, reinstate
 
     import1
     import2
@@ -108,7 +108,7 @@ describe BeetleETL do
   end
 
   def import3
-    # undelete with update
+    # reinstate with update
     insert_into(:source__Organisation).values(
       [ :pkOrgId , :Name    , :Adresse            , :Abteilung ] ,
       [ 1        , 'Apple'  , 'Apple Street'      , 'iPhone'   ] ,

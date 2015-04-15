@@ -11,7 +11,7 @@ module BeetleETL
     end
 
     def run
-      %w(create keep update delete undelete).each do |transition|
+      %w(create keep update delete reinstate).each do |transition|
         public_send(:"transition_#{transition}")
       end
     end
@@ -84,10 +84,10 @@ module BeetleETL
       SQL
     end
 
-    def transition_undelete
+    def transition_reinstate
       database.execute <<-SQL
         UPDATE #{stage_table_name_sql} stage
-        SET transition = 'UNDELETE'
+        SET transition = 'REINSTATE'
         WHERE EXISTS (
           SELECT 1
           FROM #{public_table_name_sql} public

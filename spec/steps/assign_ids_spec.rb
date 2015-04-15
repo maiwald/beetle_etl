@@ -69,31 +69,31 @@ module BeetleETL
     describe '#map_existing_ids' do
       it 'assigns ids for existing records by their external id' do
         insert_into(:example_table).values(
-          [ :external_id  , :external_source ] ,
-          [ 'keep_id'     , external_source  ] ,
-          [ 'update_id'   , external_source  ] ,
-          [ 'delete_id'   , external_source  ] ,
-          [ 'undelete_id' , external_source  ] ,
+          [ :external_id   , :external_source ] ,
+          [ 'keep_id'      , external_source  ] ,
+          [ 'update_id'    , external_source  ] ,
+          [ 'delete_id'    , external_source  ] ,
+          [ 'reinstate_id' , external_source  ] ,
         )
 
         insert_into(subject.stage_table_name.to_sym).values(
-          [ :external_id  , :transition ] ,
-          [ 'create_id'   , 'CREATE'    ] ,
-          [ 'keep_id'     , 'KEEP'      ] ,
-          [ 'update_id'   , 'UPDATE'    ] ,
-          [ 'delete_id'   , 'DELETE'    ] ,
-          [ 'undelete_id' , 'UNDELETE'  ] ,
+          [ :external_id   , :transition  ] ,
+          [ 'create_id'    , 'CREATE'     ] ,
+          [ 'keep_id'      , 'KEEP'       ] ,
+          [ 'update_id'    , 'UPDATE'     ] ,
+          [ 'delete_id'    , 'DELETE'     ] ,
+          [ 'reinstate_id' , 'REINSTATE'  ] ,
         )
 
         subject.map_existing_ids
 
         expect(subject.stage_table_name.to_sym).to have_values(
-          [ :id , :external_id  , :transition ] ,
-          [ nil , 'create_id'   , 'CREATE'    ] ,
-          [ 1   , 'keep_id'     , 'KEEP'      ] ,
-          [ 2   , 'update_id'   , 'UPDATE'    ] ,
-          [ 3   , 'delete_id'   , 'DELETE'    ] ,
-          [ 4   , 'undelete_id' , 'UNDELETE'  ] ,
+          [ :id , :external_id   , :transition ] ,
+          [ nil , 'create_id'    , 'CREATE'    ] ,
+          [ 1   , 'keep_id'      , 'KEEP'      ] ,
+          [ 2   , 'update_id'    , 'UPDATE'    ] ,
+          [ 3   , 'delete_id'    , 'DELETE'    ] ,
+          [ 4   , 'reinstate_id' , 'REINSTATE' ] ,
         )
       end
     end

@@ -46,7 +46,7 @@ module BeetleETL
 
     describe '#run' do
       it 'runs all transitions' do
-        %w(create keep update delete undelete).each do |transition|
+        %w(create keep update delete reinstate).each do |transition|
           expect(subject).to receive(:"transition_#{transition}")
         end
 
@@ -151,8 +151,8 @@ module BeetleETL
       end
     end
 
-    describe 'transition_undelete' do
-      it 'assigns UNDELETE to previously deleted records' do
+    describe 'transition_reinstate' do
+      it 'assigns REINSTATE to previously deleted records' do
         insert_into(:example_table).values(
           [ :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at ] ,
           [ 'existing'   , external_source  , 'existing content' , 'ignored content'  , 1       , nil         ] ,
@@ -165,12 +165,12 @@ module BeetleETL
           [ 'deleted'    , 'updated content' , 2       , 'ignored_column' ] ,
         )
 
-        subject.transition_undelete
+        subject.transition_reinstate
 
         expect(subject.stage_table_name.to_sym).to have_values(
-          [ :external_id , :transition ] ,
-          [ 'existing'   , nil         ] ,
-          [ 'deleted'    , 'UNDELETE'  ] ,
+          [ :external_id , :transition  ] ,
+          [ 'existing'   , nil          ] ,
+          [ 'deleted'    , 'REINSTATE'  ] ,
         )
       end
     end

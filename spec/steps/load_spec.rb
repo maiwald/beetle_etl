@@ -65,7 +65,7 @@ module BeetleETL
 
     describe '#run' do
       it 'runs all load steps' do
-        %w(create update delete undelete).each do |transition|
+        %w(create update delete reinstate).each do |transition|
           expect(subject).to receive(:"load_#{transition}")
         end
 
@@ -131,7 +131,7 @@ module BeetleETL
       end
     end
 
-    describe '#load_undelete' do
+    describe '#load_reinstate' do
       it 'restores deleted records' do
         insert_into(:example_table).values(
           [ :id , :external_id  , :external_source , :foo_id , :created_at , :updated_at , :deleted_at , :payload  ] ,
@@ -140,10 +140,10 @@ module BeetleETL
 
         insert_into(subject.stage_table_name.to_sym).values(
           [ :id , :external_id  , :transition , :external_foo_id , :foo_id , :payload          ] ,
-          [ 1   , 'external_id' , 'UNDELETE'  , 'foo_id'         , 33      , 'updated content' ] ,
+          [ 1   , 'external_id' , 'REINSTATE' , 'foo_id'         , 33      , 'updated content' ] ,
         )
 
-        subject.load_undelete
+        subject.load_reinstate
 
         expect(:example_table).to have_values(
           [ :id , :external_id  , :external_source , :foo_id , :created_at , :updated_at , :deleted_at , :payload          ] ,

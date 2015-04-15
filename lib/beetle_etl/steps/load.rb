@@ -12,7 +12,7 @@ module BeetleETL
     end
 
     def run
-      %w(create update delete undelete).each do |transition|
+      %w(create update delete reinstate).each do |transition|
         public_send(:"load_#{transition}")
       end
     end
@@ -63,7 +63,7 @@ module BeetleETL
       SQL
     end
 
-    def load_undelete
+    def load_reinstate
       database.execute <<-SQL
         UPDATE #{public_table_name_sql} public
         SET
@@ -72,7 +72,7 @@ module BeetleETL
           deleted_at = NULL
         FROM #{stage_table_name_sql} stage
         WHERE stage.id = public.id
-          AND stage.transition = 'UNDELETE'
+          AND stage.transition = 'REINSTATE'
       SQL
     end
 

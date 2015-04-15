@@ -23,7 +23,7 @@ module BeetleETL
         UPDATE #{stage_table_name_sql} stage
         SET id = public.id
         FROM #{public_table_name_sql} public
-        WHERE stage.transition IN ('KEEP', 'UPDATE', 'DELETE', 'UNDELETE')
+        WHERE stage.transition IN ('KEEP', 'UPDATE', 'DELETE', 'REINSTATE')
         AND stage.external_id = public.external_id
       SQL
     end
