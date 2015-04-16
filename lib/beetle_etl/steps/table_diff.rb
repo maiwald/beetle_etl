@@ -73,10 +73,7 @@ module BeetleETL
           public.external_id,
           'DELETE'
         FROM #{public_table_name_sql} public
-        LEFT OUTER JOIN (
-          SELECT *
-          FROM #{stage_table_name_sql}
-          ) stage
+        LEFT OUTER JOIN #{stage_table_name_sql} stage
           ON (stage.external_id = public.external_id)
         WHERE stage.external_id IS NULL
         AND public.external_source = '#{external_source}'
