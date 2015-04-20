@@ -16,7 +16,6 @@ module BeetleETL
             AND public.external_source = '#{external_source}'
           )
         WHERE stage_update.external_id = stage.external_id
-          AND stage.transition IS NOT NULL
       SQL
     end
 

@@ -46,7 +46,7 @@ module BeetleETL
 
     describe '#run' do
       it 'runs all transitions' do
-        %w(create keep update delete reinstate).each do |transition|
+        %w(create update delete reinstate).each do |transition|
           expect(subject).to receive(:"transition_#{transition}")
         end
 
@@ -75,32 +75,6 @@ module BeetleETL
           [ :external_id , :transition ] ,
           [ 'created'    , 'CREATE'    ] ,
           [ 'existing'   , nil         ] ,
-        )
-      end
-    end
-
-    describe 'transition_keep' do
-      it 'assigns KEEP if the record already exists and is not deleted, comparing all columns
-        except externald_*_id columns and columns not contained in the stage table' do
-
-        insert_into(:example_table).values(
-          [ :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at ] ,
-          [ 'existing'   , external_source  , 'existing content' , 'ignored content'  , 1       , nil         ] ,
-          [ 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 2       , 1.day.ago   ] ,
-        )
-
-        insert_into(subject.stage_table_name.to_sym).values(
-          [ :external_id , :payload           , :foo_id , :external_foo_id ] ,
-          [ 'existing'   , 'existing content' , 1       , 'ignored column' ] ,
-          [ 'deleted'    , 'deleted content'  , 2       , 'ignored column' ] ,
-        )
-
-        subject.transition_keep
-
-        expect(subject.stage_table_name.to_sym).to have_values(
-          [ :external_id , :transition ] ,
-          [ 'existing'   , 'KEEP'      ] ,
-          [ 'deleted'    , nil         ] ,
         )
       end
     end

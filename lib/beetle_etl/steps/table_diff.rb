@@ -11,7 +11,7 @@ module BeetleETL
     end
 
     def run
-      %w(create keep update delete reinstate).each do |transition|
+      %w(create update delete reinstate).each do |transition|
         public_send(:"transition_#{transition}")
       end
     end
@@ -25,24 +25,6 @@ module BeetleETL
           FROM #{public_table_name} public
           WHERE public.external_id = stage.external_id
           AND public.external_source = '#{external_source}'
-        )
-      SQL
-    end
-
-    def transition_keep
-      database.execute <<-SQL
-        UPDATE #{stage_table_name_sql} stage
-        SET transition = 'KEEP'
-        WHERE EXISTS (
-          SELECT 1
-          FROM #{public_table_name} public
-          WHERE public.external_id = stage.external_id
-          AND public.external_source = '#{external_source}'
-          AND public.deleted_at IS NULL
-          AND
-            (#{public_record_columns.join(', ')})
-            IS NOT DISTINCT FROM
-            (#{stage_record_columns.join(', ')})
         )
       SQL
     end
