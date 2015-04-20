@@ -12,19 +12,6 @@ module BeetleETL
         config.external_source = external_source
         config.database = test_database
       end
-
-      test_database.create_table(subject.stage_table_name.to_sym) do
-        Integer :id
-        String :external_id, size: 255
-        String :transition, size: 255
-      end
-
-      test_database.create_table(:example_table) do
-        primary_key :id
-        String :external_id, size: 255
-        String :external_source, size: 255
-      end
-
     end
 
     describe '#dependencies' do
@@ -34,40 +21,24 @@ module BeetleETL
     end
 
     describe '#run' do
-      it 'runs all transitions' do
-        %i(assign_new_ids map_existing_ids).each do |method|
-          expect(subject).to receive(method)
+      before do
+        test_database.create_table(subject.stage_table_name.to_sym) do
+          Integer :id
+          String :external_id, size: 255
+          String :transition, size: 255
         end
 
-        subject.run
+        test_database.create_table(:example_table) do
+          primary_key :id
+          String :external_id, size: 255
+          String :external_source, size: 255
+        end
       end
-    end
 
-    describe '#assign_new_ids' do
-      it 'generates new ids for newly created records' do
-        insert_into(:example_table).values(
-          [ :external_id , :external_source ] ,
-          [ 'keep_id'    , external_source  ] ,
-        )
+      it 'assigns ids for' do
+        # - generated ones for new records
+        # - mapped ones by external_id for existing records
 
-        insert_into(subject.stage_table_name.to_sym).values(
-          [ :external_id , :transition ] ,
-          [ 'create_id'  , 'CREATE'    ] ,
-          [ 'keep_id'    , 'KEEP'      ] ,
-        )
-
-        subject.assign_new_ids
-
-        expect(subject.stage_table_name.to_sym).to have_values(
-          [ :id , :external_id , :transition ] ,
-          [ 2   , 'create_id'  , 'CREATE'    ] ,
-          [ nil , 'keep_id'    , 'KEEP'      ] ,
-        )
-      end
-    end
-
-    describe '#map_existing_ids' do
-      it 'assigns ids for existing records by their external id' do
         insert_into(:example_table).values(
           [ :external_id   , :external_source ] ,
           [ 'keep_id'      , external_source  ] ,
@@ -85,11 +56,11 @@ module BeetleETL
           [ 'reinstate_id' , 'REINSTATE'  ] ,
         )
 
-        subject.map_existing_ids
+        subject.run
 
         expect(subject.stage_table_name.to_sym).to have_values(
           [ :id , :external_id   , :transition ] ,
-          [ nil , 'create_id'    , 'CREATE'    ] ,
+          [ 5   , 'create_id'    , 'CREATE'    ] ,
           [ 1   , 'keep_id'      , 'KEEP'      ] ,
           [ 2   , 'update_id'    , 'UPDATE'    ] ,
           [ 3   , 'delete_id'    , 'DELETE'    ] ,

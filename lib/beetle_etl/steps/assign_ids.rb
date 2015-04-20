@@ -6,25 +6,14 @@ module BeetleETL
     end
 
     def run
-      assign_new_ids
-      map_existing_ids
-    end
-
-    def assign_new_ids
       database.execute <<-SQL
-        UPDATE #{stage_table_name_sql}
-        SET id = nextval('#{table_name}_id_seq')
-        WHERE transition = 'CREATE'
-      SQL
-    end
-
-    def map_existing_ids
-      database.execute <<-SQL
-        UPDATE #{stage_table_name_sql} stage
-        SET id = public.id
-        FROM #{public_table_name_sql} public
-        WHERE stage.transition IN ('KEEP', 'UPDATE', 'DELETE', 'REINSTATE')
-        AND stage.external_id = public.external_id
+        UPDATE #{stage_table_name_sql} stage_update
+        SET id = COALESCE(public.id, nextval('#{table_name}_id_seq'))
+        FROM #{stage_table_name_sql} stage
+        LEFT OUTER JOIN #{public_table_name_sql} public
+          on (stage.external_id = public.external_id)
+        WHERE stage_update.external_id = stage.external_id
+          AND stage.transition IS NOT NULL
       SQL
     end
 
