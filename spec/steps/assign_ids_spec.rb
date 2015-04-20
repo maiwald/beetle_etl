@@ -40,11 +40,12 @@ module BeetleETL
         # - mapped ones by external_id for existing records
 
         insert_into(:example_table).values(
-          [ :external_id   , :external_source ] ,
-          [ 'keep_id'      , external_source  ] ,
-          [ 'update_id'    , external_source  ] ,
-          [ 'delete_id'    , external_source  ] ,
-          [ 'reinstate_id' , external_source  ] ,
+          [ :external_id   , :external_source    ] ,
+          [ 'keep_id'      , external_source     ] ,
+          [ 'update_id'    , external_source     ] ,
+          [ 'delete_id'    , external_source     ] ,
+          [ 'reinstate_id' , external_source     ] ,
+          [ 'create_id'    , 'some_other_source' ] ,
         )
 
         insert_into(subject.stage_table_name.to_sym).values(
@@ -60,7 +61,7 @@ module BeetleETL
 
         expect(subject.stage_table_name.to_sym).to have_values(
           [ :id , :external_id   , :transition ] ,
-          [ 5   , 'create_id'    , 'CREATE'    ] ,
+          [ 6   , 'create_id'    , 'CREATE'    ] ,
           [ 1   , 'keep_id'      , 'KEEP'      ] ,
           [ 2   , 'update_id'    , 'UPDATE'    ] ,
           [ 3   , 'delete_id'    , 'DELETE'    ] ,

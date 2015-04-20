@@ -11,7 +11,10 @@ module BeetleETL
         SET id = COALESCE(public.id, nextval('#{table_name}_id_seq'))
         FROM #{stage_table_name_sql} stage
         LEFT OUTER JOIN #{public_table_name_sql} public
-          on (stage.external_id = public.external_id)
+          on (
+            stage.external_id = public.external_id
+            AND public.external_source = '#{external_source}'
+          )
         WHERE stage_update.external_id = stage.external_id
           AND stage.transition IS NOT NULL
       SQL
