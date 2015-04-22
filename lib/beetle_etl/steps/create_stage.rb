@@ -23,6 +23,12 @@ module BeetleETL
 
         #{index_definitions};
 
+        ALTER TABLE #{stage_table_name_sql}
+        SET (
+          autovacuum_enabled = false,
+          toast.autovacuum_enabled = false
+        );
+
         TRUNCATE TABLE #{stage_table_name_sql} RESTART IDENTITY CASCADE;
       SQL
     end
