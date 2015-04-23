@@ -22,9 +22,9 @@ module BeetleETL
         SET transition = 'CREATE'
         WHERE NOT EXISTS (
           SELECT 1
-          FROM #{public_table_name} public
-          WHERE public.external_id = stage.external_id
-          AND public.external_source = '#{external_source}'
+          FROM #{target_table_name} target
+          WHERE target.external_id = stage.external_id
+          AND target.external_source = '#{external_source}'
         )
       SQL
     end
@@ -35,12 +35,12 @@ module BeetleETL
         SET transition = 'UPDATE'
         WHERE EXISTS (
           SELECT 1
-          FROM #{public_table_name} public
-          WHERE public.external_id = stage.external_id
-          AND public.external_source = '#{external_source}'
-          AND public.deleted_at IS NULL
+          FROM #{target_table_name} target
+          WHERE target.external_id = stage.external_id
+          AND target.external_source = '#{external_source}'
+          AND target.deleted_at IS NULL
           AND
-            (#{public_record_columns.join(', ')})
+            (#{target_record_columns.join(', ')})
             IS DISTINCT FROM
             (#{stage_record_columns.join(', ')})
         )
@@ -52,14 +52,14 @@ module BeetleETL
         INSERT INTO #{stage_table_name_sql}
           (external_id, transition)
         SELECT
-          public.external_id,
+          target.external_id,
           'DELETE'
-        FROM #{public_table_name_sql} public
+        FROM #{target_table_name_sql} target
         LEFT OUTER JOIN #{stage_table_name_sql} stage
-          ON (stage.external_id = public.external_id)
+          ON (stage.external_id = target.external_id)
         WHERE stage.external_id IS NULL
-        AND public.external_source = '#{external_source}'
-        AND public.deleted_at IS NULL
+        AND target.external_source = '#{external_source}'
+        AND target.deleted_at IS NULL
       SQL
     end
 
@@ -69,18 +69,18 @@ module BeetleETL
         SET transition = 'REINSTATE'
         WHERE EXISTS (
           SELECT 1
-          FROM #{public_table_name_sql} public
-          WHERE public.external_id = stage.external_id
-          AND public.external_source = '#{external_source}'
-          AND public.deleted_at IS NOT NULL
+          FROM #{target_table_name_sql} target
+          WHERE target.external_id = stage.external_id
+          AND target.external_source = '#{external_source}'
+          AND target.deleted_at IS NOT NULL
         )
       SQL
     end
 
     private
 
-    def public_record_columns
-      prefixed_columns(data_columns, 'public')
+    def target_record_columns
+      prefixed_columns(data_columns, 'target')
     end
 
     def stage_record_columns

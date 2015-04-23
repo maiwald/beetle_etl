@@ -15,22 +15,22 @@ module BeetleETL
       %Q("#{stage_table_name(table_name)}")
     end
 
-    def public_table_name(table_name = nil)
+    def target_table_name(table_name = nil)
       name = (table_name || @table_name).to_s
-      [public_schema, name].compact.join('.')
+      [target_schema, name].compact.join('.')
     end
 
-    def public_table_name_sql(table_name = nil)
+    def target_table_name_sql(table_name = nil)
       name = (table_name || @table_name).to_s
-      public_table_name= [public_schema, name].compact.join('"."')
-      %Q("#{public_table_name}")
+      target_table_name= [target_schema, name].compact.join('"."')
+      %Q("#{target_table_name}")
     end
 
     private
 
-    def public_schema
-      public_schema = BeetleETL.config.public_schema
-      public_schema != 'public' ? public_schema : nil
+    def target_schema
+      target_schema = BeetleETL.config.target_schema
+      target_schema != 'public' ? target_schema : nil
     end
 
   end

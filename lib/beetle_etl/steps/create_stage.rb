@@ -70,7 +70,7 @@ module BeetleETL
     end
 
     def column_type(column_name)
-      @column_types ||= Hash[database.schema(public_table_name.to_sym)]
+      @column_types ||= Hash[database.schema(target_table_name.to_sym)]
         .reduce({}) do |acc, (name, schema)|
           acc[name.to_sym] = schema.fetch(:db_type)
           acc

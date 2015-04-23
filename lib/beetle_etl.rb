@@ -34,12 +34,12 @@ module BeetleETL
       :database,
       :transformation_file,
       :stage_schema,
-      :public_schema,
+      :target_schema,
       :external_source,
       :logger
 
     def initialize
-      @public_schema = 'public'
+      @target_schema = 'public'
       @logger = ::Logger.new(STDOUT)
     end
   end

@@ -74,7 +74,7 @@ module BeetleETL
     end
 
     describe '#load_create' do
-      it 'loads records into the public table' do
+      it 'loads records into the target table' do
         insert_into(subject.stage_table_name.to_sym).values(
           [ :id , :external_id  , :transition , :external_foo_id , :foo_id , :payload       ] ,
           [ 3   , 'external_id' , 'CREATE'    , 'foo_id'         , 22      , 'content'      ] ,

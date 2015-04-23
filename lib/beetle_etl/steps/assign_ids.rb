@@ -8,12 +8,12 @@ module BeetleETL
     def run
       database.execute <<-SQL
         UPDATE #{stage_table_name_sql} stage_update
-        SET id = COALESCE(public.id, nextval('#{table_name}_id_seq'))
+        SET id = COALESCE(target.id, nextval('#{table_name}_id_seq'))
         FROM #{stage_table_name_sql} stage
-        LEFT OUTER JOIN #{public_table_name_sql} public
+        LEFT OUTER JOIN #{target_table_name_sql} target
           on (
-            stage.external_id = public.external_id
-            AND public.external_source = '#{external_source}'
+            stage.external_id = target.external_id
+            AND target.external_source = '#{external_source}'
           )
         WHERE stage_update.external_id = stage.external_id
       SQL

@@ -25,7 +25,7 @@ module BeetleETL
       just_now = now
 
       database.execute <<-SQL
-        INSERT INTO #{public_table_name_sql}
+        INSERT INTO #{target_table_name_sql}
           (#{data_columns.join(', ')}, external_source, created_at, updated_at)
         SELECT
           #{data_columns.join(', ')},
@@ -39,12 +39,12 @@ module BeetleETL
 
     def load_update
       database.execute <<-SQL
-        UPDATE #{public_table_name_sql} public
+        UPDATE #{target_table_name_sql} target
         SET
           #{updatable_columns.map { |c| %Q("#{c}" = stage."#{c}") }.join(',')},
           "updated_at" = '#{now}'
         FROM #{stage_table_name_sql} stage
-        WHERE stage.id = public.id
+        WHERE stage.id = target.id
           AND stage.transition = 'UPDATE'
       SQL
     end
@@ -53,25 +53,25 @@ module BeetleETL
       just_now = now
 
       database.execute <<-SQL
-        UPDATE #{public_table_name_sql} public
+        UPDATE #{target_table_name_sql} target
         SET
           updated_at = '#{just_now}',
           deleted_at = '#{just_now}'
         FROM #{stage_table_name_sql} stage
-        WHERE stage.id = public.id
+        WHERE stage.id = target.id
           AND stage.transition = 'DELETE'
       SQL
     end
 
     def load_reinstate
       database.execute <<-SQL
-        UPDATE #{public_table_name_sql} public
+        UPDATE #{target_table_name_sql} target
         SET
           #{updatable_columns.map { |c| %Q("#{c}" = stage."#{c}") }.join(',')},
           updated_at = '#{now}',
           deleted_at = NULL
         FROM #{stage_table_name_sql} stage
-        WHERE stage.id = public.id
+        WHERE stage.id = target.id
           AND stage.transition = 'REINSTATE'
       SQL
     end
