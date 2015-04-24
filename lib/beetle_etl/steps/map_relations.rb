@@ -7,7 +7,8 @@ module BeetleETL
     end
 
     def dependencies
-      @relations.values.map { |d| AssignIds.step_name(d) }.to_set << Transform.step_name(table_name)
+      result = Set.new([Transform.step_name(table_name)])
+      result.merge @relations.values.map { |d| AssignIds.step_name(d) }
     end
 
     def run
