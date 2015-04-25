@@ -8,8 +8,8 @@ module BeetleETL
     def initialize(table_name, setup, helpers = nil)
       @table_name = table_name
       @parsed = DSL.new(table_name).tap do |dsl|
-        dsl.instance_eval(&helpers) if helpers
-        dsl.instance_eval(&setup)
+        dsl.instance_exec(&helpers) if helpers
+        dsl.instance_exec(&setup)
       end
     end
 
