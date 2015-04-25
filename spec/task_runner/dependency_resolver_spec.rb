@@ -34,6 +34,7 @@ module BeetleETL
       end
 
       it 'returns all items with met dependencies' do
+        expect(resolver.resolvables([:a])).to match_array([b, c])
         expect(resolver.resolvables([:a, :b, :c])).to match_array([d])
         expect(resolver.resolvables([:a, :b, :c, :d])).to match_array([e, f])
       end

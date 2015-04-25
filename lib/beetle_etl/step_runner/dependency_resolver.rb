@@ -11,7 +11,7 @@ module BeetleETL
 
     def resolvables(resolved)
       @items.select do |item|
-        (item.dependencies.subset?(resolved.to_set) || item.dependencies.empty?) && !resolved.include?(item.name)
+        !resolved.include?(item.name) && all_dependencies_met?(item, resolved)
       end
     end
 
@@ -22,17 +22,14 @@ module BeetleETL
       resolved = []
 
       until items.empty?
-        resolved_names = resolved.flatten.map(&:name).to_set
-
-        resolvable = items.select do |item|
-          item.dependencies.subset?(resolved_names) || item.dependencies.empty?
-        end
-
-        raise UnsatisfiableDependenciesError if resolvable.empty?
-
-        resolvable.each { |r| items.delete r }
-        resolved << resolvable
+        resolvables = items.select { |item| all_dependencies_met?(item, resolved.map(&:name)) }
+        raise UnsatisfiableDependenciesError if resolvables.empty?
+        resolvables.each { |r| resolved << items.delete(r) }
       end
+    end
+
+    def all_dependencies_met?(item, resolved)
+      item.dependencies.empty? || item.dependencies.subset?(resolved.to_set)
     end
 
   end
