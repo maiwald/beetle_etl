@@ -12,7 +12,7 @@ module BeetleETL
     end
 
     def run
-      %w(create update delete reinstate).each do |transition|
+      %w(create update delete).each do |transition|
         public_send(:"load_#{transition}")
       end
     end
@@ -42,10 +42,11 @@ module BeetleETL
         UPDATE #{target_table_name_sql} target
         SET
           #{updatable_columns.map { |c| %Q("#{c}" = stage."#{c}") }.join(',')},
-          "updated_at" = '#{now}'
+          "updated_at" = '#{now}',
+          deleted_at = NULL
         FROM #{stage_table_name_sql} stage
         WHERE stage.id = target.id
-          AND stage.transition = 'UPDATE'
+          AND stage.transition IN ('UPDATE', 'REINSTATE')
       SQL
     end
 
@@ -60,19 +61,6 @@ module BeetleETL
         FROM #{stage_table_name_sql} stage
         WHERE stage.id = target.id
           AND stage.transition = 'DELETE'
-      SQL
-    end
-
-    def load_reinstate
-      database.execute <<-SQL
-        UPDATE #{target_table_name_sql} target
-        SET
-          #{updatable_columns.map { |c| %Q("#{c}" = stage."#{c}") }.join(',')},
-          updated_at = '#{now}',
-          deleted_at = NULL
-        FROM #{stage_table_name_sql} stage
-        WHERE stage.id = target.id
-          AND stage.transition = 'REINSTATE'
       SQL
     end
 
