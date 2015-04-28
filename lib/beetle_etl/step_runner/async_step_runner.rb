@@ -58,7 +58,7 @@ module BeetleETL
           BeetleETL.logger.fatal(e.message)
           raise e
         end
-      end
+      end.abort_on_exception = true
     end
 
     def mark_step_running(step_name)
