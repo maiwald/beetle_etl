@@ -1,3 +1,3 @@
 module BeetleETL
-  VERSION = "0.0.19"
+  VERSION = "1.0.1"
 end
