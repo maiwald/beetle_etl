@@ -32,12 +32,34 @@ Make sure the tables you want to import contain columns named ```external_id``` 
 
 ### Configuration
 
-    BeetleETL.configure do |config|
-      config.transformation_file = # path to your transformation file
-      config.database_config = # sequel database config
-    # or config.database = # sequel database instance
-      config.external_source = ‘name_of_your_source’
-      config.logger = Logger.new(STDOUT)
+Create a configuration object
+
+    configuration = BeetleETL::Configuration.new do |config|
+      # path to your transformation file
+      config.transformation_file = "../my_fancy_transformations"
+
+      # sequel database config
+      config.database_config = {
+        adapter: 'postgres'
+        encoding: utf8
+        host: my_host
+        database: my_database
+        username: 'foo'
+        password: 'bar'
+        pool: 5
+        pool_timeout: 360
+        connect_timeout: 360
+      }
+      # or config.database = # sequel database instance
+
+      # name of your soruce
+      config.external_source = "important_data"
+
+      # target schema in case you use postgres schemas
+      config.target_schema = "public" # default
+
+      # logger
+      config.logger = Logger.new(STDOUT) # default
     end
 
 ### Defining Imports
@@ -66,8 +88,8 @@ Fill a ```transformation``` file with import directives like this:
           ON data.org_id = o.id
       SQL
     end
-    
-    
+
+
 ```import``` takes the name of the table you want to fill and the configuration as arguments.
 With ```columns``` you define what columns BeetleETL is supposed to fill in your application’s table.
 The ```query``` transforms the data. Make sure that you insert into ```#{stage_table}``` as the name of the actual table, that this inserts into will be filled in by BeetleETL during runtime.
@@ -76,7 +98,7 @@ Define any foreign references your table has to other tables using the ```refrec
 
 ### Running BeetleETL
 
-    BeetleETL.import
+    BeetleETL.import(configuration)
 
 ## Development
 

@@ -22,7 +22,7 @@ describe "BeetleETL:Testing" do
       end
     FILE
 
-    BeetleETL.configure do |config|
+    BeetleETL::Testing.configure do |config|
       config.database = test_database
       config.transformation_file = data_file.path
     end

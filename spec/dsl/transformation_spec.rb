@@ -3,9 +3,11 @@ require 'spec_helper'
 module BeetleETL
   describe Transformation do
 
+    let(:config) { Configuration.new }
+
     describe '#table_name' do
       it 'returns the given table name' do
-        transformation = Transformation.new(:table, Proc.new {})
+        transformation = Transformation.new(config, :table, Proc.new {})
         expect(transformation.table_name).to eql(:table)
       end
     end
@@ -15,7 +17,7 @@ module BeetleETL
         setup = Proc.new do
           columns :payload_1, 'payload_2'
         end
-        transformation = Transformation.new(:table, setup)
+        transformation = Transformation.new(config, :table, setup)
 
         expect(transformation.column_names).to match_array([
           :payload_1, :payload_2
@@ -23,7 +25,7 @@ module BeetleETL
       end
 
       it 'defaults to an empty array if no columns are defined' do
-        transformation = Transformation.new(:table, Proc.new {})
+        transformation = Transformation.new(config, :table, Proc.new {})
 
         expect(transformation.column_names).to match_array([])
       end
@@ -35,7 +37,7 @@ module BeetleETL
           references :foreign_table, on: :foreign_table_id
           references :another_foreign_table, on: :another_foreign_table_id
         end
-        transformation = Transformation.new(:table, setup)
+        transformation = Transformation.new(config, :table, setup)
 
         expect(transformation.relations).to eql({
           foreign_table_id: :foreign_table,
@@ -50,7 +52,7 @@ module BeetleETL
           references :foreign_table, on: :foreign_table_id
           references :another_foreign_table, on: :another_foreign_table_id
         end
-        transformation = Transformation.new(:table, setup)
+        transformation = Transformation.new(config, :table, setup)
 
         expect(transformation.dependencies).to eql(Set.new([:foreign_table, :another_foreign_table]))
       end
@@ -66,7 +68,7 @@ module BeetleETL
           query "SELECT '#{foo}' FROM some_table"
         end
 
-        transformation = Transformation.new(:table, setup, helpers)
+        transformation = Transformation.new(config, :table, setup, helpers)
 
         expect(transformation.query).to eql(
           "SELECT 'foo_string' FROM some_table"
@@ -78,7 +80,7 @@ module BeetleETL
           query "SOME QUERY"
           query "ANOTHER QUERY"
         end
-        transformation = Transformation.new(:table, setup)
+        transformation = Transformation.new(config, :table, setup)
 
         expect(transformation.query).to eql(
           "SOME QUERY;ANOTHER QUERY"

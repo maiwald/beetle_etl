@@ -1,7 +1,9 @@
 module BeetleETL
   class AsyncStepRunner
 
-    def initialize(steps)
+    def initialize(config, steps)
+      @config = config
+
       @dependency_resolver = DependencyResolver.new(steps)
       @steps = steps
 
@@ -39,14 +41,14 @@ module BeetleETL
     def run_step_async(step)
       Thread.new do
         begin
-          BeetleETL.logger.info("started step #{step.name}")
+          @config.logger.info("started step #{step.name}")
 
           started_at = Time.now
           step.run
           finished_at = Time.now
 
           duration = Time.at(finished_at - started_at).utc.strftime("%H:%M:%S")
-          BeetleETL.logger.info("finished #{step.name} in #{duration}")
+          @config.logger.info("finished #{step.name} in #{duration}")
 
           @queue.push [
             step.table_name,
@@ -55,7 +57,7 @@ module BeetleETL
           ]
 
         rescue => e
-          BeetleETL.logger.fatal(e.message)
+          @config.logger.fatal(e.message)
           raise e
         end
       end.abort_on_exception = true

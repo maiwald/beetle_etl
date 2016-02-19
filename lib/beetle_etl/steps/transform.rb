@@ -1,8 +1,8 @@
 module BeetleETL
   class Transform < Step
 
-    def initialize(table_name, dependencies, query)
-      super(table_name)
+    def initialize(config, table_name, dependencies, query)
+      super(config, table_name)
       @dependencies = dependencies
       @query = query
     end

@@ -3,10 +3,17 @@ require 'spec_helper'
 module BeetleETL
   describe Transform do
 
+    let(:database) { double(:database) }
+    let(:config) do
+      Configuration.new.tap do |c|
+        c.database = database
+      end
+    end
     let(:query) { double(:query) }
+
     subject do
       deps = [:some_table, :some_other_table].to_set
-      Transform.new(:example_table, deps, query)
+      Transform.new(config, :example_table, deps, query)
     end
 
     describe '#dependencies' do
@@ -22,9 +29,6 @@ module BeetleETL
 
     describe '#run' do
       it 'runs a query in the database' do
-        database = double(:database)
-        BeetleETL.configure { |config| config.database = database }
-
         expect(database).to receive(:run).with(query)
 
         subject.run

@@ -11,14 +11,16 @@ module BeetleETL
     let(:now) { Time.now.beginning_of_day }
     let(:yesterday) { 1.day.ago.beginning_of_day }
 
-    subject { Load.new(:example_table, []) }
+    let(:config) do
+      Configuration.new.tap do |c|
+        c.external_source = external_source
+        c.database = test_database
+      end
+    end
+
+    subject { Load.new(config, :example_table, []) }
 
     before do
-      BeetleETL.configure do |config|
-        config.external_source = external_source
-        config.database = test_database
-      end
-
       allow(subject).to receive(:now) { now }
 
       test_database.create_schema(:stage)
@@ -54,7 +56,7 @@ module BeetleETL
           dependee_b_id: :dependee_b,
         }
 
-        expect(Load.new(:depender, relations).dependencies).to eql(
+        expect(Load.new(config, :depender, relations).dependencies).to eql(
           [
             'dependee_a: Load',
             'dependee_b: Load',

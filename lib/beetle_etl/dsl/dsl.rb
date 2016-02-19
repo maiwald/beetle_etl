@@ -3,7 +3,8 @@ module BeetleETL
 
     attr_reader :column_names, :relations, :query_strings
 
-    def initialize(table_name)
+    def initialize(config, table_name)
+      @config = config
       @table_name = table_name
       @column_names = []
       @relations = {}
@@ -25,7 +26,10 @@ module BeetleETL
     # query helper methods
 
     def stage_table(table_name = nil)
-      BeetleETL::Naming.stage_table_name_sql(table_name || @table_name)
+      BeetleETL::Naming.stage_table_name_sql(
+        @config.external_source,
+        table_name || @table_name
+      )
     end
 
     def combined_key(*args)

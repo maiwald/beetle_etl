@@ -3,9 +3,7 @@ require 'spec_helper'
 module BeetleETL
   describe TransformationLoader do
 
-    subject { TransformationLoader.new }
-
-    before do
+    let(:config) do
       data_file = tempfile_with_contents <<-FILE
         import :foo do
           'foo'
@@ -20,15 +18,18 @@ module BeetleETL
         end
       FILE
 
-      BeetleETL.configure do |config|
-        config.transformation_file = data_file.path
+      Configuration.new.tap do |c|
+        c.transformation_file = data_file.path
       end
     end
 
+    subject { TransformationLoader.new(config) }
+
     describe '#load' do
       it 'loads transformations from the data file' do
-        expect(Transformation).to receive(:new) do |table_name, config, helpers|
-          expect(table_name.to_s).to eql(config.call)
+        expect(Transformation).to receive(:new) do |configuration, table_name, setup, helpers|
+          expect(configuration).to eql(config)
+          expect(table_name.to_s).to eql(setup.call)
           expect(helpers.call).to eql("baz")
         end.exactly(2).times
 
@@ -36,7 +37,7 @@ module BeetleETL
       end
 
       it 'returns the list of transformations' do
-        allow(Transformation).to receive(:new) do |table_name, config, helpers|
+        allow(Transformation).to receive(:new) do |configuration, table_name, setup, helpers|
           table_name
         end
 

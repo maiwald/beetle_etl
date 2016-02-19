@@ -1,12 +1,13 @@
 module BeetleETL
   class Reporter
 
-    def initialize(report)
+    def initialize(config, report)
+      @config = config
       @report = report
     end
 
     def log_summary
-      BeetleETL.logger.info(summary)
+      @config.logger.info(summary)
     end
 
     private

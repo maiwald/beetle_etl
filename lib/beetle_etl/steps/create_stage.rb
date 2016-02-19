@@ -5,8 +5,8 @@ module BeetleETL
 
   class CreateStage < Step
 
-    def initialize(table_name, relations, column_names)
-      super(table_name)
+    def initialize(config, table_name, relations, column_names)
+      super(config, table_name)
       @relations = relations
       @column_names = column_names
     end

@@ -5,9 +5,9 @@ module BeetleETL
 
     attr_reader :table_name
 
-    def initialize(table_name, setup, helpers = nil)
+    def initialize(config, table_name, setup, helpers = nil)
       @table_name = table_name
-      @parsed = DSL.new(table_name).tap do |dsl|
+      @parsed = DSL.new(config, table_name).tap do |dsl|
         dsl.instance_exec(&helpers) if helpers
         dsl.instance_exec(&setup)
       end

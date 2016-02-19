@@ -23,11 +23,11 @@ describe BeetleETL do
     database_config_path = File.expand_path('../support/database.yml', File.dirname(__FILE__))
     database_config = YAML.load(File.read(database_config_path))
 
-    BeetleETL.configure do |config|
-      config.transformation_file = File.expand_path('../example_transform.rb', __FILE__)
-      config.database_config = database_config
-      config.external_source = 'source_name'
-      config.logger = Logger.new(Tempfile.new("log"))
+    @config = BeetleETL::Configuration.new.tap do |c|
+      c.transformation_file = File.expand_path('../example_transform.rb', __FILE__)
+      c.database_config = database_config
+      c.external_source = 'source_name'
+      c.logger = Logger.new(Tempfile.new("log"))
     end
   end
 
@@ -54,7 +54,7 @@ describe BeetleETL do
     )
 
     Timecop.freeze(time1) do
-      BeetleETL.import
+      BeetleETL.import(@config)
     end
 
     expect(:organisations).to have_values(
@@ -86,7 +86,7 @@ describe BeetleETL do
     )
 
     Timecop.freeze(time2) do
-      BeetleETL.import
+      BeetleETL.import(@config)
     end
 
     expect(:organisations).to have_values(
@@ -118,7 +118,7 @@ describe BeetleETL do
     )
 
     Timecop.freeze(time3) do
-      BeetleETL.import
+      BeetleETL.import(@config)
     end
 
     expect(:organisations).to have_values(
