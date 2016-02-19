@@ -3,8 +3,19 @@ require 'spec_helper'
 module BeetleETL
   describe MapRelations do
 
-    let(:dependee_a) { BeetleETL::Naming.stage_table_name(:dependee_a).to_sym }
-    let(:dependee_b) { BeetleETL::Naming.stage_table_name(:dependee_b).to_sym }
+    let(:config) do
+      Configuration.new.tap do |c|
+        c.external_source = 'my_source'
+        c.database = test_database
+      end
+    end
+
+    let(:dependee_a) do
+      BeetleETL::Naming.stage_table_name('my_source', :dependee_a).to_sym
+    end
+    let(:dependee_b) do
+      BeetleETL::Naming.stage_table_name('my_source', :dependee_b).to_sym
+    end
 
     let(:relations) do
       {
@@ -14,15 +25,10 @@ module BeetleETL
     end
 
     subject do
-      MapRelations.new(:depender, relations)
+      MapRelations.new(config, :depender, relations)
     end
 
     before do
-      BeetleETL.configure do |config|
-        config.external_source = 'my_source'
-        config.database = test_database
-      end
-
       test_database.create_table(dependee_a) do
         Integer :id
         String :external_id, size: 255

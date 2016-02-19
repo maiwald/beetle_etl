@@ -3,20 +3,22 @@ require 'spec_helper'
 module BeetleETL
   describe CreateStage do
 
+    let(:config) do
+      Configuration.new.tap do |c|
+        c.database = test_database
+        c.external_source = "source"
+      end
+    end
+
     describe '#dependencies' do
       it 'has no dependencies' do
-        subject = CreateStage.new(:example_table, double(:dependencies), double(:columns))
+        subject = CreateStage.new(config, :example_table, double(:dependencies), double(:columns))
         expect(subject.dependencies).to eql(Set.new)
       end
     end
 
     describe '#run' do
       before do
-        BeetleETL.configure do |config|
-          config.database = test_database
-          config.external_source = "source"
-        end
-
         test_database.execute <<-SQL
           CREATE TABLE example_table (
             id INTEGER,
@@ -42,7 +44,7 @@ module BeetleETL
       end
 
       let(:subject) do
-        CreateStage.new(:example_table, @relations, @columns)
+        CreateStage.new(config, :example_table, @relations, @columns)
       end
 
       it 'creates a stage table table with all payload columns' do
@@ -82,30 +84,30 @@ module BeetleETL
 
       it 'does not add foreign key columns twice if defined as payload column' do
         columns = [:some_string, :dependee_a_id]
-        CreateStage.new(:example_table, @relations, columns).run
+        CreateStage.new(config, :example_table, @relations, columns).run
       end
 
       it 'raises an error if no columns and no relations are defined' do
         expect do
-          CreateStage.new(:example_table, {}, []).run
+          CreateStage.new(config, :example_table, {}, []).run
         end.to raise_error(BeetleETL::NoColumnsDefinedError)
       end
 
       it 'raises an error when given columns with no definition' do
         expect do
-          CreateStage.new(:example_table, @relations, [:undefined_column]).run
+          CreateStage.new(config, :example_table, @relations, [:undefined_column]).run
         end.to raise_error(BeetleETL::ColumnDefinitionNotFoundError)
       end
 
       it "truncates the stage table if it already exists" do
-        CreateStage.new(:example_table, {}, @columns).run
+        CreateStage.new(config, :example_table, {}, @columns).run
 
         insert_into(subject.stage_table_name.to_sym).values(
           [ :some_string , :some_integer , :some_float ] ,
           [ "hello"     , 123           , 123.456      ]
         )
 
-        CreateStage.new(:example_table, {}, @columns).run
+        CreateStage.new(config, :example_table, {}, @columns).run
 
         expect(subject.stage_table_name).to have_values(
           [:some_string, :some_integer, :some_float]

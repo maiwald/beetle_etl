@@ -38,7 +38,10 @@ module BeetleETL
     end
 
     it "loggs a summary of all step times by table name" do
-      expect(BeetleETL.logger).to receive(:info).with <<-LOG.unindent
+      config = Configuration.new.tap do |c|
+        c.logger = double(:logger)
+      end
+      expect(config.logger).to receive(:info).with <<-LOG.unindent
 
 
         organisations
@@ -58,7 +61,7 @@ module BeetleETL
                         01:31:39
       LOG
 
-      Reporter.new(report).log_summary
+      Reporter.new(config, report).log_summary
     end
 
   end

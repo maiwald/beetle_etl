@@ -3,7 +3,9 @@ require 'spec_helper'
 module BeetleETL
   describe Step do
 
-    subject { Step.new(:example_table) }
+    let(:config) { Configuration.new }
+
+    subject { Step.new(config, :example_table) }
     FooStep = Class.new(Step)
 
     describe '.step_name' do
@@ -18,11 +20,11 @@ module BeetleETL
 
     describe '#name' do
       it 'returns the steps name' do
-        expect(Step.new(:example_table).name).to eql('example_table: Step')
+        expect(Step.new(config, :example_table).name).to eql('example_table: Step')
       end
 
       it 'returns the step name of inheriting steps' do
-        expect(FooStep.new(:foo_table).name).to eql('foo_table: FooStep')
+        expect(FooStep.new(config, :foo_table).name).to eql('foo_table: FooStep')
       end
     end
 

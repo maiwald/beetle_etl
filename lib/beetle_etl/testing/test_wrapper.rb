@@ -1,6 +1,6 @@
 module BeetleETL
   module Testing
-    class TestWrapper < Struct.new(:table_names)
+    class TestWrapper < Struct.new(:config, :table_names)
 
       def run(block)
         begin
@@ -15,18 +15,18 @@ module BeetleETL
 
       def create_stages
         transformations.each do |t|
-          CreateStage.new(t.table_name, t.relations, t.column_names).run
+          CreateStage.new(config, t.table_name, t.relations, t.column_names).run
         end
       end
 
       def drop_stages
         transformations.each do |t|
-          DropStage.new(t.table_name).run
+          DropStage.new(config, t.table_name).run
         end
       end
 
       def transformations
-        @transformations ||= TransformationLoader.new.load.find_all do |transformation|
+        @transformations ||= TransformationLoader.new(config).load.find_all do |transformation|
           table_names.include? transformation.table_name
         end
       end

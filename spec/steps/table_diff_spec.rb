@@ -7,15 +7,16 @@ module BeetleETL
   describe TableDiff do
 
     let(:external_source) { 'my_source' }
+    let(:config) do
+      Configuration.new.tap do |c|
+        c.external_source = external_source
+        c.database = test_database
+      end
+    end
 
-    subject { TableDiff.new(:example_table) }
+    subject { TableDiff.new(config, :example_table) }
 
     before do
-      BeetleETL.configure do |config|
-        config.external_source = external_source
-        config.database = test_database
-      end
-
       test_database.create_table(subject.stage_table_name.to_sym) do
         String :external_id, size: 255
         String :transition, size: 20

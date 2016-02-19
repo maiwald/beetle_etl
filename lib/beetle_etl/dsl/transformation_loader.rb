@@ -1,18 +1,19 @@
 module BeetleETL
   class TransformationLoader
 
-    def initialize
+    def initialize(config)
+      @config = config
       @transformations = []
       @helper_definitions = nil
     end
 
     def load
-      File.open(BeetleETL.config.transformation_file, 'r') do |file|
+      File.open(@config.transformation_file, 'r') do |file|
         instance_eval file.read
       end
 
       @transformations.map do |(table_name, setup)|
-        Transformation.new(table_name, setup, @helper_definitions)
+        Transformation.new(@config, table_name, setup, @helper_definitions)
       end
     end
 

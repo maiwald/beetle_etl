@@ -6,15 +6,15 @@ module BeetleETL
     let(:external_source) { 'my_source' }
     let(:another_source) { 'another_source' }
 
-    subject { AssignIds.new(:example_table) }
-
-    before do
-      BeetleETL.configure do |config|
-        config.stage_schema = 'stage'
-        config.external_source = external_source
-        config.database = test_database
+    let(:config) do
+      Configuration.new.tap do |c|
+        c.stage_schema = 'stage'
+        c.external_source = external_source
+        c.database = test_database
       end
     end
+
+    subject { AssignIds.new(config, :example_table) }
 
     describe '#dependencies' do
       it 'depends on TableDiff of the same table' do

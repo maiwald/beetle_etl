@@ -1,8 +1,8 @@
 module BeetleETL
   class MapRelations < Step
 
-    def initialize(table_name, relations)
-      super(table_name)
+    def initialize(config, table_name, relations)
+      super(config, table_name)
       @relations = relations
     end
 
