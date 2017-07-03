@@ -1,6 +1,5 @@
 # BeetleETL
 [![Build Status](https://travis-ci.org/maiwald/beetle_etl.svg?branch=master)](https://travis-ci.org/maiwald/beetle_etl)
-[![Code Climate](https://codeclimate.com/github/maiwald/beetle_etl.png)](https://codeclimate.com/github/maiwald/beetle_etl)
 
 BeetleETL helps you with synchronising relational databases and recurring imports of reference data. It is actually quite nice.
 

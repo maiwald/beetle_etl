@@ -5,6 +5,5 @@ gemspec
 
 group :test do
   gem 'rake'
-  gem 'codeclimate-test-reporter'
   gem 'byebug'
 end

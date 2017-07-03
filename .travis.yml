@@ -6,8 +6,6 @@ rvm:
   - 2.3.0
 addons:
   postgresql: "9.3"
-  code_climate:
-    repo_token: fcd6d8c28da900609a2cf903716d858621b8ce68152edbcebe6908a9a3f5d3d5
 before_install:
   - gem update --system
   - gem update bundler

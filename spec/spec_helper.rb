@@ -1,6 +1,4 @@
 require "byebug"
-require "codeclimate-test-reporter"
-CodeClimate::TestReporter.start
 
 require_relative "../lib/beetle_etl.rb"
 require_relative "support/database_helpers.rb"
