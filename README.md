@@ -34,61 +34,64 @@ Make sure the tables you want to import contain columns named ```external_id``` 
 
 Create a configuration object
 
-    configuration = BeetleETL::Configuration.new do |config|
-      # path to your transformation file
-      config.transformation_file = "../my_fancy_transformations"
+```ruby
+configuration = BeetleETL::Configuration.new do |config|
+  # path to your transformation file
+  config.transformation_file = "../my_fancy_transformations"
 
-      # sequel database config
-      config.database_config = {
-        adapter: 'postgres'
-        encoding: utf8
-        host: my_host
-        database: my_database
-        username: 'foo'
-        password: 'bar'
-        pool: 5
-        pool_timeout: 360
-        connect_timeout: 360
-      }
-      # or config.database = # sequel database instance
+  # sequel database config
+  config.database_config = {
+    adapter: 'postgres'
+    encoding: utf8
+    host: my_host
+    database: my_database
+    username: 'foo'
+    password: 'bar'
+    pool: 5
+    pool_timeout: 360
+    connect_timeout: 360
+  }
+  # or config.database = # sequel database instance
 
-      # name of your soruce
-      config.external_source = "important_data"
+  # name of your soruce
+  config.external_source = "important_data"
 
-      # target schema in case you use postgres schemas
-      config.target_schema = "public" # default
+  # target schema in case you use postgres schemas
+  config.target_schema = "public" # default
 
-      # logger
-      config.logger = Logger.new(STDOUT) # default
-    end
+  # logger
+  config.logger = Logger.new(STDOUT) # default
+end
+```
 
 ### Defining Imports
 
 Fill a ```transformation``` file with import directives like this:
 
-    import :departments do
-      columns :name
+```ruby
+import :departments do
+  columns :name
 
-      references :organisations, on: :organisation_id
+  references :organisations, on: :organisation_id
 
-      query <<-SQL
-        INSERT INTO #{stage_table} (
-          external_id,
-          name,
-          external_organisation_id
-        )
+  query <<-SQL
+    INSERT INTO #{stage_table} (
+      external_id,
+      name,
+      external_organisation_id
+    )
 
-        SELECT
-          o.id,
-          o.”dep_name”,
-          data.”address”
+    SELECT
+      o.id,
+      o.”dep_name”,
+      data.”address”
 
-        FROM ”Organisation” o
-        JOIN additional_data data
-          ON data.org_id = o.id
-      SQL
-    end
-
+    FROM ”Organisation” o
+    JOIN additional_data data
+      ON data.org_id = o.id
+  SQL
+end
+```
 
 ```import``` takes the name of the table you want to fill and the configuration as arguments.
 With ```columns``` you define what columns BeetleETL is supposed to fill in your application’s table.
