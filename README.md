@@ -5,7 +5,7 @@ BeetleETL helps you with synchronising relational databases and recurring import
 
 Consider you have a set of database tables representing third party data (i.e. the ```source```) and you want to synchronize a set of tables in your application (i.e. the ```target```) with that third party data. Further consider that you want to apply transformations to that ```source``` data before you import it.
 
-You define your transformations and BeetleETL will to the rest. Even when your ```source``` data changes, when you run BeetleETL again, it can keep track of what changes need to be applied to what records in your application’s tables.
+You define your transformations and BeetleETL will do the rest. Even when your ```source``` data changes, when you run BeetleETL again, it can keep track of what changes need to be applied to what records in your application’s tables.
 
 It currently only works with PostgreSQL databases.
 
