@@ -39,7 +39,7 @@ module BeetleETL
       definitions = [
         payload_column_definitions,
         relation_column_definitions
-      ].compact
+      ].flatten
 
       if definitions.empty?
         raise NoColumnsDefinedError.new <<-MSG
@@ -52,20 +52,18 @@ module BeetleETL
     end
 
     def payload_column_definitions
-      definitions = (@column_names - @relations.keys).map do |column_name|
+      (@column_names - @relations.keys).map do |column_name|
         "#{column_name} #{column_type(column_name)}"
       end
-      definitions.join(',') if definitions.any?
     end
 
     def relation_column_definitions
-      definitions = @relations.map do |foreign_key_name, table|
+      @relations.map do |foreign_key_name, table|
         <<-SQL
           #{foreign_key_name} integer,
           external_#{foreign_key_name} character varying(255)
         SQL
       end
-      definitions.join(',') if definitions.any?
     end
 
     def index_definitions
