@@ -3,7 +3,7 @@ require 'spec_helper'
 module BeetleETL
   describe Step do
 
-    let(:config) { Configuration.new }
+    let(:config) { OpenStruct.new }
 
     subject { Step.new(config, :example_table) }
     FooStep = Class.new(Step)

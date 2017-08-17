@@ -1,4 +1,5 @@
 require "byebug"
+require "ostruct"
 
 require_relative "../lib/beetle_etl.rb"
 require_relative "support/database_helpers.rb"
@@ -17,7 +18,7 @@ RSpec.configure do |config|
     else
       test_database.transaction do
         example.run
-        raise Sequel::Error::Rollback
+        raise Sequel::Rollback
       end
     end
   end

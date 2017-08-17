@@ -5,6 +5,7 @@ require 'logger'
 
 module BeetleETL
 
+  require 'beetle_etl/adapters/sequel_adapter'
   require 'beetle_etl/configuration'
 
   require 'beetle_etl/dsl/dsl'

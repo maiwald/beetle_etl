@@ -5,9 +5,9 @@ module BeetleETL
 
     let(:database) { double(:database) }
     let(:config) do
-      Configuration.new.tap do |c|
-        c.database = database
-      end
+      OpenStruct.new({
+        database: database
+      })
     end
     let(:query) { double(:query) }
 
@@ -29,7 +29,7 @@ module BeetleETL
 
     describe '#run' do
       it 'runs a query in the database' do
-        expect(database).to receive(:run).with(query)
+        expect(database).to receive(:execute).with(query)
 
         subject.run
       end

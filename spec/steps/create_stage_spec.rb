@@ -102,14 +102,14 @@ module BeetleETL
       it "truncates the stage table if it already exists" do
         CreateStage.new(config, :example_table, {}, @columns).run
 
-        insert_into(subject.stage_table_name.to_sym).values(
+        insert_into(Sequel.qualify("public", subject.stage_table_name)).values(
           [ :some_string , :some_integer , :some_float ] ,
           [ "hello"     , 123           , 123.456      ]
         )
 
         CreateStage.new(config, :example_table, {}, @columns).run
 
-        expect(subject.stage_table_name).to have_values(
+        expect(Sequel.qualify("public", subject.stage_table_name)).to have_values(
           [:some_string, :some_integer, :some_float]
         )
       end

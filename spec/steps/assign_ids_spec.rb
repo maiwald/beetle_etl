@@ -7,11 +7,12 @@ module BeetleETL
     let(:another_source) { 'another_source' }
 
     let(:config) do
-      Configuration.new.tap do |c|
-        c.stage_schema = 'stage'
-        c.external_source = external_source
-        c.database = test_database
-      end
+      OpenStruct.new({
+        stage_schema: 'stage',
+        target_schema: 'public',
+        external_source: external_source,
+        database: test_database,
+      })
     end
 
     subject { AssignIds.new(config, :example_table) }

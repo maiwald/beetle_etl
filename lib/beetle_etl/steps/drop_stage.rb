@@ -3,7 +3,7 @@ module BeetleETL
 
     def run
       database.execute <<-SQL
-        DROP TABLE IF EXISTS #{stage_table_name_sql}
+        DROP TABLE IF EXISTS "#{target_schema}"."#{stage_table_name}";
       SQL
     end
 

@@ -4,10 +4,11 @@ module BeetleETL
   describe MapRelations do
 
     let(:config) do
-      Configuration.new.tap do |c|
-        c.external_source = 'my_source'
-        c.database = test_database
-      end
+      OpenStruct.new({
+        external_source: 'my_source',
+        target_schema: 'public',
+        database: test_database
+      })
     end
 
     let(:dependee_a) do
@@ -75,15 +76,14 @@ module BeetleETL
           [ 26  , 'b_id'       ] ,
         )
 
-        insert_into(subject.stage_table_name.to_sym).values(
+        insert_into(Sequel.qualify("public", subject.stage_table_name)).values(
           [ :external_dependee_a_id , :external_dependee_b_id ] ,
           [ 'a_id'                  , 'b_id'                  ] ,
         )
 
-
         subject.run
 
-        expect(subject.stage_table_name.to_sym).to have_values(
+        expect(Sequel.qualify("public", subject.stage_table_name)).to have_values(
           [ :dependee_a_id , :dependee_b_id ] ,
           [ 1              , 26             ] ,
         )

@@ -12,7 +12,7 @@ module BeetleETL
     end
 
     def run
-      database.run(@query)
+      database.execute(@query)
     end
 
   end

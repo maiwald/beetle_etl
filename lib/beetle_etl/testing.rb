@@ -13,7 +13,7 @@ module BeetleETL
 
     def with_stage_tables_for(*table_names, &block)
       table_names.each do |table_name|
-        unless @@config.database.table_exists?(table_name)
+        unless @@config.database.table_exists?(@@config.target_schema, table_name)
           raise TargetTableNotFoundError.new <<-MSG
             Missing target table "#{table_name}".
             In order to create stage tables, BeetleETL requires the target tables to exist because they provide the column definitions.

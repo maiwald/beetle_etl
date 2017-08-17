@@ -6,6 +6,7 @@ module BeetleETL
     let(:config) do
       Configuration.new.tap do |c|
         c.external_source = "bar"
+        c.target_schema = "baz_schema"
       end
     end
 
@@ -14,13 +15,13 @@ module BeetleETL
     describe '#stage_table' do
       it 'returns the current stage table name' do
         expect(subject.stage_table).to eql(
-          BeetleETL::Naming.stage_table_name_sql("bar", :foo_table)
+          %Q["baz_schema"."#{BeetleETL::Naming.stage_table_name("bar", :foo_table)}"]
         )
       end
 
       it 'returns the stage table name for the given table' do
         expect(subject.stage_table(:bar_table)).to eql(
-          BeetleETL::Naming.stage_table_name_sql("bar", :bar_table)
+          %Q["baz_schema"."#{BeetleETL::Naming.stage_table_name("bar", :bar_table)}"]
         )
       end
     end

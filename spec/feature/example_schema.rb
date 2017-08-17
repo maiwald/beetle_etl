@@ -13,7 +13,7 @@ module ExampleSchema
   def create_source_tables
     test_database.create_schema :source
 
-    test_database.create_table :source__Organisation do
+    test_database.create_table Sequel.qualify("source", "Organisation") do
       Integer :pkOrgId
       String :Name, size: 255
       String :Adresse, size: 255
@@ -26,7 +26,9 @@ module ExampleSchema
   end
 
   def create_target_tables
-    test_database.create_table :organisations do
+    test_database.create_schema :my_target
+
+    test_database.create_table Sequel.qualify("my_target", "organisations") do
       primary_key :id
       String :external_id, size: 255
       String :external_source, size: 255
@@ -37,12 +39,12 @@ module ExampleSchema
       DateTime :deleted_at
     end
 
-    test_database.create_table :departments do
+    test_database.create_table Sequel.qualify("my_target", "departments") do
       primary_key :id
       String :external_id, size: 255
       String :external_source, size: 255
       String :name, size: 255
-      foreign_key :organisation_id, :organisations
+      foreign_key :organisation_id, Sequel.qualify("my_target", "organisations")
       DateTime :created_at
       DateTime :updated_at
       DateTime :deleted_at
@@ -50,8 +52,7 @@ module ExampleSchema
   end
 
   def drop_target_tables
-    test_database.drop_table :departments
-    test_database.drop_table :organisations
+    test_database.drop_schema :my_target, cascade: true
   end
 
 end

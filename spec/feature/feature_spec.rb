@@ -27,6 +27,7 @@ describe BeetleETL do
       c.transformation_file = File.expand_path('../example_transform.rb', __FILE__)
       c.database_config = database_config
       c.external_source = 'source_name'
+      c.target_schema = 'my_target'
       c.logger = Logger.new(Tempfile.new("log"))
     end
   end
@@ -45,7 +46,7 @@ describe BeetleETL do
 
   def import1
     # create
-    insert_into(:source__Organisation).values(
+    insert_into(Sequel.qualify("source", "Organisation")).values(
       [ :pkOrgId , :Name    , :Adresse        , :Abteilung ] ,
       [ 1        , 'Apple'  , 'Apple Street'  , 'iPhone'   ] ,
       [ 2        , 'Apple'  , 'Apple Street'  , 'MacBook'  ] ,
@@ -57,14 +58,14 @@ describe BeetleETL do
       BeetleETL.import(@config)
     end
 
-    expect(:organisations).to have_values(
+    expect(Sequel.qualify("my_target", "organisations")).to have_values(
       [ :id                       , :external_id , :external_source , :name    , :address        , :created_at , :updated_at , :deleted_at ] ,
       [ organisation_id('Apple')  , 'Apple'      , 'source_name'    , 'Apple'  , 'Apple Street'  , time1       , time1       , nil         ] ,
       [ organisation_id('Google') , 'Google'     , 'source_name'    , 'Google' , 'Google Street' , time1       , time1       , nil         ] ,
       [ organisation_id('Audi')   , 'Audi'       , 'source_name'    , 'Audi'   , 'Audi Street'   , time1       , time1       , nil         ]
     )
 
-    expect(:departments).to have_values(
+    expect(Sequel.qualify("my_target", "departments")).to have_values(
       [ :id                         , :external_id , :organisation_id          , :external_source , :name     , :created_at , :updated_at , :deleted_at ] ,
       [ department_id('[Apple,1]')  , '[Apple,1]'  , organisation_id('Apple')  , 'source_name'    , 'iPhone'  , time1       , time1       , nil         ] ,
       [ department_id('[Apple,2]')  , '[Apple,2]'  , organisation_id('Apple')  , 'source_name'    , 'MacBook' , time1       , time1       , nil         ] ,
@@ -72,12 +73,12 @@ describe BeetleETL do
       [ department_id('[Audi,4]')   , '[Audi,4]'   , organisation_id('Audi')   , 'source_name'    , 'A4'      , time1       , time1       , nil         ] ,
     )
 
-    test_database[:source__Organisation].truncate
+    test_database[Sequel.qualify("source", "Organisation")].truncate
   end
 
   def import2
     # keep, update, delete
-    insert_into(:source__Organisation).values(
+    insert_into(Sequel.qualify("source", "Organisation")).values(
       [ :pkOrgId , :Name    , :Adresse            , :Abteilung ] ,
       [ 1        , 'Apple'  , 'Apple Street'      , 'iPhone'   ] ,
       [ 2        , 'Apple'  , 'Apple Street'      , 'MacBook'  ] ,
@@ -89,14 +90,14 @@ describe BeetleETL do
       BeetleETL.import(@config)
     end
 
-    expect(:organisations).to have_values(
+    expect(Sequel.qualify("my_target", "organisations")).to have_values(
       [ :id                       , :external_id , :external_source , :name    , :address            , :created_at , :updated_at , :deleted_at ] ,
       [ organisation_id('Apple')  , 'Apple'      , 'source_name'    , 'Apple'  , 'Apple Street'      , time1       , time1       , nil         ] ,
       [ organisation_id('Google') , 'Google'     , 'source_name'    , 'Google' , 'NEW Google Street' , time1       , time2       , nil         ] ,
       [ organisation_id('Audi')   , 'Audi'       , 'source_name'    , 'Audi'   , 'Audi Street'       , time1       , time2       , time2       ]
     )
 
-    expect(:departments).to have_values(
+    expect(Sequel.qualify("my_target", "departments")).to have_values(
       [ :id                         , :external_id , :organisation_id          , :external_source , :name     , :created_at , :updated_at , :deleted_at ] ,
       [ department_id('[Apple,1]')  , '[Apple,1]'  , organisation_id('Apple')  , 'source_name'    , 'iPhone'  , time1       , time1       , nil         ] ,
       [ department_id('[Apple,2]')  , '[Apple,2]'  , organisation_id('Apple')  , 'source_name'    , 'MacBook' , time1       , time1       , nil         ] ,
@@ -104,12 +105,12 @@ describe BeetleETL do
       [ department_id('[Audi,4]')   , '[Audi,4]'   , organisation_id('Audi')   , 'source_name'    , 'A4'      , time1       , time2       , time2       ] ,
     )
 
-    test_database[:source__Organisation].truncate
+    test_database[Sequel.qualify("source", "Organisation")].truncate
   end
 
   def import3
     # reinstate with update
-    insert_into(:source__Organisation).values(
+    insert_into(Sequel.qualify("source", "Organisation")).values(
       [ :pkOrgId , :Name    , :Adresse            , :Abteilung ] ,
       [ 1        , 'Apple'  , 'Apple Street'      , 'iPhone'   ] ,
       [ 2        , 'Apple'  , 'Apple Street'      , 'MacBook'  ] ,
@@ -121,14 +122,14 @@ describe BeetleETL do
       BeetleETL.import(@config)
     end
 
-    expect(:organisations).to have_values(
+    expect(Sequel.qualify("my_target", "organisations")).to have_values(
       [ :id                       , :external_id , :external_source , :name    , :address            , :created_at , :updated_at , :deleted_at ] ,
       [ organisation_id('Apple')  , 'Apple'      , 'source_name'    , 'Apple'  , 'Apple Street'      , time1       , time1       , nil         ] ,
       [ organisation_id('Google') , 'Google'     , 'source_name'    , 'Google' , 'NEW Google Street' , time1       , time2       , nil         ] ,
       [ organisation_id('Audi')   , 'Audi'       , 'source_name'    , 'Audi'   , 'NEW Audi Street'   , time1       , time3       , nil         ]
     )
 
-    expect(:departments).to have_values(
+    expect(Sequel.qualify("my_target", "departments")).to have_values(
       [ :id                         , :external_id , :organisation_id          , :external_source , :name     , :created_at , :updated_at , :deleted_at ] ,
       [ department_id('[Apple,1]')  , '[Apple,1]'  , organisation_id('Apple')  , 'source_name'    , 'iPhone'  , time1       , time1       , nil         ] ,
       [ department_id('[Apple,2]')  , '[Apple,2]'  , organisation_id('Apple')  , 'source_name'    , 'MacBook' , time1       , time1       , nil         ] ,
@@ -136,15 +137,15 @@ describe BeetleETL do
       [ department_id('[Audi,4]')   , '[Audi,4]'   , organisation_id('Audi')   , 'source_name'    , 'A4'      , time1       , time3       , nil         ] ,
     )
 
-    test_database[:source__Organisation].truncate
+    test_database[Sequel.qualify("source", "Organisation")].truncate
   end
 
   def organisation_id(external_id)
-    test_database[:organisations].first(external_id: external_id)[:id]
+    test_database[Sequel.qualify("my_target", "organisations")].first(external_id: external_id)[:id]
   end
 
   def department_id(external_id)
-    test_database[:departments].first(external_id: external_id)[:id]
+    test_database[Sequel.qualify("my_target", "departments")].first(external_id: external_id)[:id]
   end
 
 end

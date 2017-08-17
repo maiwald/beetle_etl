@@ -75,7 +75,7 @@ describe "BeetleETL:Testing" do
       with_stage_tables_for(:organisations, :some_table) do
         run_transformation(:organisations)
 
-        expect(stage_table_name(:organisations)).to have_values(
+        expect(Sequel.qualify("public", stage_table_name(:organisations))).to have_values(
           [ :external_id  , :address  , :name  ] ,
           [ "external_id" , "address" , "name" ]
         )

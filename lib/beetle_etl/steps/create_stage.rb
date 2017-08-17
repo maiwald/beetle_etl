@@ -13,7 +13,7 @@ module BeetleETL
 
     def run
       database.execute <<-SQL
-        CREATE UNLOGGED TABLE IF NOT EXISTS #{stage_table_name_sql} (
+        CREATE UNLOGGED TABLE IF NOT EXISTS "#{target_schema}"."#{stage_table_name}" (
           id integer,
           external_id character varying(255),
           transition character varying(255),
@@ -23,13 +23,13 @@ module BeetleETL
 
         #{index_definitions};
 
-        ALTER TABLE #{stage_table_name_sql}
+        ALTER TABLE "#{target_schema}"."#{stage_table_name}"
         SET (
           autovacuum_enabled = false,
           toast.autovacuum_enabled = false
         );
 
-        TRUNCATE TABLE #{stage_table_name_sql} RESTART IDENTITY CASCADE;
+        TRUNCATE TABLE "#{target_schema}"."#{stage_table_name}" RESTART IDENTITY CASCADE;
       SQL
     end
 
@@ -69,16 +69,12 @@ module BeetleETL
     def index_definitions
       index_columns = [:external_id] + @relations.keys.map { |c| "external_#{c}" }
       index_columns.map do |column_name|
-        "CREATE INDEX ON #{stage_table_name_sql} (#{column_name})"
+        %Q[CREATE INDEX ON "#{target_schema}"."#{stage_table_name}" (#{column_name});]
       end.join(";")
     end
 
     def column_type(column_name)
-      @column_types ||= Hash[database.schema(target_table_name.to_sym)]
-        .reduce({}) do |acc, (name, schema)|
-          acc[name.to_sym] = schema.fetch(:db_type)
-          acc
-        end
+      @column_types ||= database.column_types(target_schema, table_name)
 
       unless @column_types.has_key?(column_name)
         raise ColumnDefinitionNotFoundError.new <<-MSG

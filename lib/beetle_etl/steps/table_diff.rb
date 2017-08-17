@@ -18,11 +18,11 @@ module BeetleETL
 
     def transition_create
       database.execute <<-SQL
-        UPDATE #{stage_table_name_sql} stage
+        UPDATE "#{target_schema}"."#{stage_table_name}" stage
         SET transition = 'CREATE'
         WHERE NOT EXISTS (
           SELECT 1
-          FROM #{target_table_name} target
+          FROM "#{target_schema}"."#{table_name}" target
           WHERE target.external_id = stage.external_id
           AND target.external_source = '#{external_source}'
         )
@@ -31,11 +31,11 @@ module BeetleETL
 
     def transition_update
       database.execute <<-SQL
-        UPDATE #{stage_table_name_sql} stage
+        UPDATE "#{target_schema}"."#{stage_table_name}" stage
         SET transition = 'UPDATE'
         WHERE EXISTS (
           SELECT 1
-          FROM #{target_table_name} target
+          FROM "#{target_schema}"."#{table_name}" target
           WHERE target.external_id = stage.external_id
           AND target.external_source = '#{external_source}'
           AND target.deleted_at IS NULL
@@ -49,13 +49,13 @@ module BeetleETL
 
     def transition_delete
       database.execute <<-SQL
-        INSERT INTO #{stage_table_name_sql}
+        INSERT INTO "#{target_schema}"."#{stage_table_name}"
           (external_id, transition)
         SELECT
           target.external_id,
           'DELETE'
-        FROM #{target_table_name_sql} target
-        LEFT OUTER JOIN #{stage_table_name_sql} stage
+        FROM "#{target_schema}"."#{table_name}" target
+        LEFT OUTER JOIN "#{target_schema}"."#{stage_table_name}" stage
           ON (stage.external_id = target.external_id)
         WHERE stage.external_id IS NULL
         AND target.external_source = '#{external_source}'
@@ -65,11 +65,11 @@ module BeetleETL
 
     def transition_reinstate
       database.execute <<-SQL
-        UPDATE #{stage_table_name_sql} stage
+        UPDATE "#{target_schema}"."#{stage_table_name}" stage
         SET transition = 'REINSTATE'
         WHERE EXISTS (
           SELECT 1
-          FROM #{target_table_name_sql} target
+          FROM "#{target_schema}"."#{table_name}" target
           WHERE target.external_id = stage.external_id
           AND target.external_source = '#{external_source}'
           AND target.deleted_at IS NOT NULL
@@ -92,7 +92,7 @@ module BeetleETL
     end
 
     def table_columns
-      @table_columns ||= database[stage_table_name.to_sym].columns
+      @table_columns ||= database.column_names(target_schema, stage_table_name)
     end
 
     def ignored_columns

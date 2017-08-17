@@ -25,26 +25,26 @@ module BeetleETL
       just_now = now
 
       database.execute <<-SQL
-        INSERT INTO #{target_table_name_sql}
+        INSERT INTO "#{target_schema}"."#{table_name}"
           (#{data_columns.join(', ')}, external_source, created_at, updated_at)
         SELECT
           #{data_columns.join(', ')},
           '#{external_source}',
           '#{just_now}',
           '#{just_now}'
-        FROM #{stage_table_name_sql}
+        FROM "#{target_schema}"."#{stage_table_name}"
         WHERE transition = 'CREATE'
       SQL
     end
 
     def load_update
       database.execute <<-SQL
-        UPDATE #{target_table_name_sql} target
+        UPDATE "#{target_schema}"."#{table_name}" target
         SET
           #{updatable_columns.map { |c| %Q("#{c}" = stage."#{c}") }.join(',')},
           "updated_at" = '#{now}',
           deleted_at = NULL
-        FROM #{stage_table_name_sql} stage
+        FROM "#{target_schema}"."#{stage_table_name}" stage
         WHERE stage.id = target.id
           AND stage.transition IN ('UPDATE', 'REINSTATE')
       SQL
@@ -54,11 +54,11 @@ module BeetleETL
       just_now = now
 
       database.execute <<-SQL
-        UPDATE #{target_table_name_sql} target
+        UPDATE "#{target_schema}"."#{table_name}" target
         SET
           updated_at = '#{just_now}',
           deleted_at = '#{just_now}'
-        FROM #{stage_table_name_sql} stage
+        FROM "#{target_schema}"."#{stage_table_name}" stage
         WHERE stage.id = target.id
           AND stage.transition = 'DELETE'
       SQL
@@ -71,7 +71,7 @@ module BeetleETL
     end
 
     def table_columns
-      @table_columns ||= database[stage_table_name.to_sym].columns
+      @table_columns ||= database.column_names(target_schema, stage_table_name)
     end
 
     def ignored_columns

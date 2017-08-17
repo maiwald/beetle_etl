@@ -26,10 +26,12 @@ module BeetleETL
     # query helper methods
 
     def stage_table(table_name = nil)
-      BeetleETL::Naming.stage_table_name_sql(
+      stage_table_name = BeetleETL::Naming.stage_table_name(
         @config.external_source,
         table_name || @table_name
       )
+
+      %Q("#{@config.target_schema}"."#{stage_table_name}")
     end
 
     def combined_key(*args)

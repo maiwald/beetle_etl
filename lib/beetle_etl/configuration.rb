@@ -1,38 +1,54 @@
 module BeetleETL
+
   InvalidConfigurationError = Class.new(StandardError)
 
   class Configuration
     attr_accessor \
       :transformation_file,
+      :target_schema,
       :stage_schema,
       :external_source,
       :logger
 
     attr_writer \
       :database,
-      :database_config,
-      :target_schema
+      :database_config
 
     def initialize
       @target_schema = 'public'
       @logger = ::Logger.new(STDOUT)
     end
 
+    def database=(database)
+      @database_config = nil
+      @adapter ||= case
+        when sequel?(database) then SequelAdapter.new(database)
+        else nil
+      end
+    end
+
+    def database_config=(database_config)
+      @database_config = database_config
+      @adapter = SequelAdapter.new(Sequel.connect(@database_config))
+    end
+
     def database
-      if [@database, @database_config].none?
-        msg = "Either Sequel connection database_config or a Sequel Database object required"
+      if @adapter.nil?
+        msg = "Either Sequel connection database_config, Sequel::Database object or ActiveRecord::Base.connection required!"
         raise InvalidConfigurationError.new(msg)
       end
 
-      @database ||= Sequel.connect(@database_config)
+      @adapter
     end
 
     def disconnect_database
-      database.disconnect if @database_config
+      @adapter.disconnect if @database_config
     end
 
-    def target_schema
-      @target_schema != 'public' ? @target_schema : nil
+    private
+
+    def sequel?(database)
+      defined?(::Sequel::Database) && database.is_a?(::Sequel::Database)
     end
 
   end
