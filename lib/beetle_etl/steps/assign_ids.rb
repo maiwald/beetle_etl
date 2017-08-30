@@ -8,7 +8,7 @@ module BeetleETL
     def run
       database.execute <<-SQL
         UPDATE "#{target_schema}"."#{stage_table_name}" stage_update
-        SET id = COALESCE(target.id, NEXTVAL('#{target_schema}.#{table_name}_id_seq'))
+        SET id = COALESCE(target.id, NEXTVAL(pg_get_serial_sequence('#{target_schema}.#{table_name}', 'id')))
         FROM "#{target_schema}"."#{stage_table_name}" stage
         LEFT OUTER JOIN "#{target_schema}"."#{table_name}" target
           on (
