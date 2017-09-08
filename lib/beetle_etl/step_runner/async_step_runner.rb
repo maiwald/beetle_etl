@@ -15,38 +15,34 @@ module BeetleETL
     end
 
     def run
-      results = {}
-
       until all_steps_complete?
         runnables.each do |step|
           run_step_async(step)
-          @started.add(step.name)
+          @started.add(step)
         end
 
-        step_data = @queue.pop
-        add_result!(results, step_data)
-
-        @completed.add(step_data[:step_name])
+        @completed.add(@queue.pop)
       end
 
-      results
+      @completed
     end
 
     private
 
     def run_step_async(step)
       Thread.new do
-        @queue.push run_step(step)
+        run_step(step)
+        @queue.push step
       end.abort_on_exception = true
     end
 
     def runnables
       resolvables = @dependency_resolver.resolvables(@completed)
-      resolvables.reject { |r| @started.include? r.name }
+      resolvables.reject { |r| @started.include? r }
     end
 
     def all_steps_complete?
-      @steps.map(&:name).to_set == @completed.to_set
+      @steps.to_set == @completed.to_set
     end
 
   end

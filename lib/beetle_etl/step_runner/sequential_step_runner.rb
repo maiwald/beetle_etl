@@ -4,8 +4,8 @@ module BeetleETL
   class SequentialStepRunner < AbstractStepRunner
 
     def run
-      @steps.reduce({}) do |results, step|
-        add_result!(results, run_step(step))
+      @steps.map do |step|
+        run_step(step)
       end
     end
 

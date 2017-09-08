@@ -3,6 +3,11 @@ module BeetleETL
   class Step
 
     attr_reader :table_name
+    attr_accessor :started_at, :finished_at
+
+    def run
+      raise NotImplementedError
+    end
 
     def initialize(config, table_name)
       @config = config

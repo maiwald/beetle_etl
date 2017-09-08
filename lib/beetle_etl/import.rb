@@ -5,21 +5,21 @@ module BeetleETL
 
     def initialize(config)
       @config = config
-      @report = {}
-
       @transformations ||= TransformationLoader.new(@config).load
     end
 
     def run
+      report = []
+
       begin
-        run_setup
-        run_transform
-        run_load
+        report.push run_setup
+        report.push run_transform
+        report.push run_load
       ensure
-        run_cleanup
+        report.push run_cleanup
       end
 
-      @report
+      report
     end
 
     def run_setup
@@ -27,7 +27,7 @@ module BeetleETL
         CreateStage.new(@config, t.table_name, t.relations, t.column_names)
       }
 
-      @report.deep_merge SequentialStepRunner.new(@config, steps).run
+      SequentialStepRunner.new(@config, steps).run
     end
 
     def run_transform
@@ -40,7 +40,7 @@ module BeetleETL
         ]
       }
 
-      @report.deep_merge AsyncStepRunner.new(@config, steps).run
+      AsyncStepRunner.new(@config, steps).run
     end
 
     def run_load
@@ -48,11 +48,10 @@ module BeetleETL
         Load.new(@config, t.table_name, t.relations)
       }
 
-      result = @config.database.transaction do
+      @config.database.transaction do
         SequentialStepRunner.new(@config, steps).run
       end
 
-      @report.deep_merge result
     end
 
     def run_cleanup
@@ -60,7 +59,7 @@ module BeetleETL
         DropStage.new(@config, t.table_name)
       }
 
-      @report.deep_merge SequentialStepRunner.new(@config, steps).run
+      SequentialStepRunner.new(@config, steps).run
     end
 
   end
