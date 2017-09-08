@@ -23,7 +23,7 @@ module BeetleETL
   require 'beetle_etl/steps/load'
   require 'beetle_etl/steps/drop_stage'
 
-  require 'beetle_etl/step_runner/dependency_resolver'
+  require 'beetle_etl/step_runner/sequential_step_runner'
   require 'beetle_etl/step_runner/async_step_runner'
 
   require 'beetle_etl/import'

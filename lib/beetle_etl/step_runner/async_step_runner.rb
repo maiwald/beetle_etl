@@ -1,15 +1,17 @@
+require_relative './abstract_step_runner'
+require_relative './dependency_resolver'
+
 module BeetleETL
-  class AsyncStepRunner
+  class AsyncStepRunner < AbstractStepRunner
 
     def initialize(config, steps)
-      @config = config
+      super(config, steps)
 
       @dependency_resolver = DependencyResolver.new(steps)
-      @steps = steps
 
       @queue = Queue.new
       @completed = Set.new
-      @running = Set.new
+      @started = Set.new
     end
 
     def run
@@ -18,17 +20,13 @@ module BeetleETL
       until all_steps_complete?
         runnables.each do |step|
           run_step_async(step)
-          mark_step_running(step.name)
+          @started.add(step.name)
         end
 
-        table_name, step_name, step_data = @queue.pop
+        step_data = @queue.pop
+        add_result!(results, step_data)
 
-        unless results.has_key?(table_name)
-          results[table_name] = {}
-        end
-
-        results[table_name][step_name] = step_data
-        mark_step_completed(step_name)
+        @completed.add(step_data[:step_name])
       end
 
       results
@@ -36,49 +34,19 @@ module BeetleETL
 
     private
 
-    attr_reader :running, :completed
-
     def run_step_async(step)
       Thread.new do
-        begin
-          @config.logger.info("started step #{step.name}")
-
-          started_at = Time.now
-          step.run
-          finished_at = Time.now
-
-          duration = Time.at(finished_at - started_at).utc.strftime("%H:%M:%S")
-          @config.logger.info("finished #{step.name} in #{duration}")
-
-          @queue.push [
-            step.table_name,
-            step.name,
-            { started_at: started_at, finished_at: finished_at }
-          ]
-
-        rescue => e
-          @config.logger.fatal(e.message)
-          raise e
-        end
+        @queue.push run_step(step)
       end.abort_on_exception = true
     end
 
-    def mark_step_running(step_name)
-      running.add(step_name)
-    end
-
-    def mark_step_completed(step_name)
-      runnables.delete(step_name)
-      completed.add(step_name)
-    end
-
     def runnables
-      resolvables = @dependency_resolver.resolvables(completed)
-      resolvables.reject { |r| running.include? r.name }
+      resolvables = @dependency_resolver.resolvables(@completed)
+      resolvables.reject { |r| @started.include? r.name }
     end
 
     def all_steps_complete?
-      @steps.map(&:name).to_set == completed.to_set
+      @steps.map(&:name).to_set == @completed.to_set
     end
 
   end
