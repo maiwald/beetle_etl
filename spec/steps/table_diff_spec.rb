@@ -18,6 +18,7 @@ module BeetleETL
 
     before do
       test_database.create_table(subject.stage_table_name.to_sym) do
+        Integer :id
         String :external_id, size: 255
         String :transition, size: 20
 
@@ -28,7 +29,7 @@ module BeetleETL
       end
 
       test_database.create_table(:example_table) do
-        Integer :id
+        primary_key :id
         String :external_id, size: 255
         String :external_source, size: 255
         DateTime :deleted_at
@@ -47,7 +48,7 @@ module BeetleETL
 
     describe '#run' do
       it 'runs all transitions' do
-        %w(create update delete reinstate).each do |transition|
+        %w(create update delete reinstate keep).each do |transition|
           expect(subject).to receive(:"transition_#{transition}")
         end
 
@@ -59,10 +60,12 @@ module BeetleETL
       it 'assigns CREATE to new records' do
 
         insert_into(:example_table).values(
-          [ :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at ] ,
-          [ 'existing'   , external_source  , 'existing content' , 'ignored content'  , 1       , nil         ] ,
-          [ 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 2       , 1.day.ago   ] ,
+          [ :id , :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at ] ,
+          [ 1   , 'existing'   , external_source  , 'existing content' , 'ignored content'  , 1       , nil         ] ,
+          [ 2   , 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 2       , 1.day.ago   ] ,
         )
+
+        test_database.run "SELECT setval('public.example_table_id_seq', 99)"
 
         insert_into(subject.stage_table_name.to_sym).values(
           [ :external_id ] ,
@@ -72,10 +75,10 @@ module BeetleETL
 
         subject.transition_create
 
-        insert_into(subject.stage_table_name.to_sym).values(
-          [ :external_id , :transition ] ,
-          [ 'created'    , 'CREATE'    ] ,
-          [ 'existing'   , nil         ] ,
+        expect(subject.stage_table_name.to_sym).to have_values(
+          [ :external_id , :id , :transition ] ,
+          [ 'created'    , 100 , 'CREATE'    ] ,
+          [ 'existing'   , nil , nil         ] ,
         )
       end
     end
@@ -85,10 +88,10 @@ module BeetleETL
         except externald_*_id columns and columns not contained in the stage table' do
 
         insert_into(:example_table).values(
-          [ :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at ] ,
-          [ 'existing_1' , external_source  , 'existing content' , 'ignored content'  , 1       , nil         ] ,
-          [ 'existing_2' , external_source  , 'existing content' , 'ignored content'  , 2       , nil         ] ,
-          [ 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 3       , 1.day.ago   ] ,
+          [ :id , :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at ] ,
+          [ 1   , 'existing_1' , external_source  , 'existing content' , 'ignored content'  , 1       , nil         ] ,
+          [ 2   , 'existing_2' , external_source  , 'existing content' , 'ignored content'  , 2       , nil         ] ,
+          [ 3   , 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 3       , 1.day.ago   ] ,
         )
 
         insert_into(subject.stage_table_name.to_sym).values(
@@ -101,10 +104,10 @@ module BeetleETL
         subject.transition_update
 
         expect(subject.stage_table_name.to_sym).to have_values(
-          [ :external_id , :transition ] ,
-          [ 'existing_1' , 'UPDATE'    ] ,
-          [ 'existing_2' , 'UPDATE'    ] ,
-          [ 'deleted'    , nil         ] ,
+          [ :external_id , :id , :transition ] ,
+          [ 'existing_1' , 1   , 'UPDATE'    ] ,
+          [ 'existing_2' , 2   , 'UPDATE'    ] ,
+          [ 'deleted'    , nil , nil         ] ,
         )
       end
     end
@@ -112,16 +115,16 @@ module BeetleETL
     describe 'transition_delete' do
       it 'creates records with DELETE that no loger exist in the stage table for the given run' do
         insert_into(:example_table).values(
-          [ :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at ] ,
-          [ 'existing'   , external_source  , 'existing content' , 'ignored content'  , 1       , nil         ] ,
-          [ 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 2       , 1.day.ago   ] ,
+          [ :id , :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at ] ,
+          [ 1   , 'existing'   , external_source  , 'existing content' , 'ignored content'  , 1       , nil         ] ,
+          [ 2   , 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 2       , 1.day.ago   ] ,
         )
 
         subject.transition_delete
 
         expect(subject.stage_table_name.to_sym).to have_values(
-          [ :external_id , :transition ] ,
-          [ 'existing'   , 'DELETE'    ] ,
+          [ :id , :transition ] ,
+          [ 1   , 'DELETE'    ] ,
         )
       end
     end
@@ -129,9 +132,9 @@ module BeetleETL
     describe 'transition_reinstate' do
       it 'assigns REINSTATE to previously deleted records' do
         insert_into(:example_table).values(
-          [ :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at ] ,
-          [ 'existing'   , external_source  , 'existing content' , 'ignored content'  , 1       , nil         ] ,
-          [ 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 2       , 1.day.ago   ] ,
+          [ :id , :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at ] ,
+          [ 1   , 'existing'   , external_source  , 'existing content' , 'ignored content'  , 1       , nil         ] ,
+          [ 2   , 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 2       , 1.day.ago   ] ,
         )
 
         insert_into(subject.stage_table_name.to_sym).values(
@@ -143,9 +146,34 @@ module BeetleETL
         subject.transition_reinstate
 
         expect(subject.stage_table_name.to_sym).to have_values(
-          [ :external_id , :transition  ] ,
-          [ 'existing'   , nil          ] ,
-          [ 'deleted'    , 'REINSTATE'  ] ,
+          [ :external_id , :id , :transition  ] ,
+          [ 'existing'   , nil , nil          ] ,
+          [ 'deleted'    , 2   , 'REINSTATE'  ] ,
+        )
+      end
+    end
+
+    describe '#transition_keep' do
+      it 'assigns KEEP to unchanged records' do
+
+        insert_into(:example_table).values(
+          [ :id , :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at ] ,
+          [ 1   , 'existing'   , external_source  , 'existing content' , 'ignored content'  , 1       , nil         ] ,
+          [ 2   , 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 2       , 1.day.ago   ] ,
+        )
+
+        insert_into(subject.stage_table_name.to_sym).values(
+          [ :external_id , :payload           , :foo_id ] ,
+          [ 'created'    , nil                , nil     ] ,
+          [ 'existing'   , 'existing content' , 1       ] ,
+        )
+
+        subject.transition_keep
+
+        expect(subject.stage_table_name.to_sym).to have_values(
+          [ :external_id , :id , :transition ] ,
+          [ 'created'    , nil , nil         ] ,
+          [ 'existing'   , 1   , 'KEEP'      ] ,
         )
       end
     end

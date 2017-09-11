@@ -8,7 +8,7 @@ module BeetleETL
 
     def dependencies
       result = Set.new([Transform.step_name(table_name)])
-      result.merge @relations.values.map { |d| AssignIds.step_name(d) }
+      result.merge @relations.values.map { |d| TableDiff.step_name(d) }
     end
 
     def run

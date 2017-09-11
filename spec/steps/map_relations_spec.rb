@@ -52,11 +52,11 @@ module BeetleETL
     end
 
     describe '#depenencies' do
-      it 'depends on Transform of the same table and AssignIds of its dependees' do
+      it 'depends on Transform of the same table and TableDiff of its dependees' do
         expect(subject.dependencies).to eql(
           [
-            'dependee_a: AssignIds',
-            'dependee_b: AssignIds',
+            'dependee_a: TableDiff',
+            'dependee_b: TableDiff',
             'depender: Transform',
           ].to_set
         )

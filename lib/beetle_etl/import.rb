@@ -35,8 +35,7 @@ module BeetleETL
         [
           Transform.new(@config, t.table_name, t.dependencies, t.query),
           MapRelations.new(@config, t.table_name, t.relations),
-          TableDiff.new(@config, t.table_name),
-          AssignIds.new(@config, t.table_name),
+          TableDiff.new(@config, t.table_name)
         ]
       }
 

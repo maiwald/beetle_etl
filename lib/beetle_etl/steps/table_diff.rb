@@ -11,7 +11,7 @@ module BeetleETL
     end
 
     def run
-      %w(create update delete reinstate).each do |transition|
+      %w(create update delete reinstate keep).each do |transition|
         public_send(:"transition_#{transition}")
       end
     end
@@ -19,7 +19,9 @@ module BeetleETL
     def transition_create
       database.execute <<-SQL
         UPDATE "#{target_schema}"."#{stage_table_name}" stage
-        SET transition = 'CREATE'
+        SET
+          transition = 'CREATE',
+          id = NEXTVAL('#{target_schema}.#{table_name}_id_seq')
         WHERE NOT EXISTS (
           SELECT 1
           FROM "#{target_schema}"."#{table_name}" target
@@ -31,12 +33,13 @@ module BeetleETL
 
     def transition_update
       database.execute <<-SQL
-        UPDATE "#{target_schema}"."#{stage_table_name}" stage
-        SET transition = 'UPDATE'
-        WHERE EXISTS (
-          SELECT 1
-          FROM "#{target_schema}"."#{table_name}" target
-          WHERE target.external_id = stage.external_id
+        UPDATE "#{target_schema}"."#{stage_table_name}" stage_update
+        SET
+          transition = 'UPDATE',
+          id = target.id
+        FROM "#{target_schema}"."#{stage_table_name}" stage
+        JOIN "#{target_schema}"."#{table_name}" target ON (
+          target.external_id = stage.external_id
           AND target.external_source = '#{external_source}'
           AND target.deleted_at IS NULL
           AND
@@ -44,16 +47,17 @@ module BeetleETL
             IS DISTINCT FROM
             (#{stage_record_columns.join(', ')})
         )
+        WHERE stage_update.external_id = stage.external_id
       SQL
     end
 
     def transition_delete
       database.execute <<-SQL
         INSERT INTO "#{target_schema}"."#{stage_table_name}"
-          (external_id, transition)
+          (transition, id)
         SELECT
-          target.external_id,
-          'DELETE'
+          'DELETE',
+          target.id
         FROM "#{target_schema}"."#{table_name}" target
         LEFT OUTER JOIN "#{target_schema}"."#{stage_table_name}" stage
           ON (stage.external_id = target.external_id)
@@ -65,15 +69,37 @@ module BeetleETL
 
     def transition_reinstate
       database.execute <<-SQL
-        UPDATE "#{target_schema}"."#{stage_table_name}" stage
-        SET transition = 'REINSTATE'
-        WHERE EXISTS (
-          SELECT 1
-          FROM "#{target_schema}"."#{table_name}" target
-          WHERE target.external_id = stage.external_id
+        UPDATE "#{target_schema}"."#{stage_table_name}" stage_update
+        SET
+          transition = 'REINSTATE',
+          id = target.id
+        FROM "#{target_schema}"."#{stage_table_name}" stage
+        JOIN "#{target_schema}"."#{table_name}" target ON (
+          target.external_id = stage.external_id
           AND target.external_source = '#{external_source}'
           AND target.deleted_at IS NOT NULL
         )
+        WHERE stage_update.external_id = stage.external_id
+      SQL
+    end
+
+    def transition_keep
+      database.execute <<-SQL
+        UPDATE "#{target_schema}"."#{stage_table_name}" stage_update
+        SET
+          transition = 'KEEP',
+          id = target.id
+        FROM "#{target_schema}"."#{stage_table_name}" stage
+        JOIN "#{target_schema}"."#{table_name}" target ON (
+          target.external_id = stage.external_id
+          AND target.external_source = '#{external_source}'
+          AND target.deleted_at IS NULL
+          AND
+            (#{target_record_columns.join(', ')})
+            IS NOT DISTINCT FROM
+            (#{stage_record_columns.join(', ')})
+        )
+        WHERE stage_update.external_id = stage.external_id
       SQL
     end
 
