@@ -18,16 +18,17 @@ module BeetleETL
 
     def transition_create
       database.execute <<-SQL
-        UPDATE "#{target_schema}"."#{stage_table_name}" stage
+        UPDATE "#{target_schema}"."#{stage_table_name}" stage_update
         SET
           transition = 'CREATE',
           id = NEXTVAL('#{target_schema}.#{table_name}_id_seq')
-        WHERE NOT EXISTS (
-          SELECT 1
-          FROM "#{target_schema}"."#{table_name}" target
-          WHERE target.external_id = stage.external_id
+        FROM "#{target_schema}"."#{stage_table_name}" stage
+        LEFT JOIN "#{target_schema}"."#{table_name}" target ON (
+          target.external_id = stage.external_id
           AND target.external_source = '#{external_source}'
         )
+        WHERE stage_update.external_id = stage.external_id
+          AND target.external_id IS NULL
       SQL
     end
 
