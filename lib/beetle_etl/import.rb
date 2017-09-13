@@ -27,7 +27,7 @@ module BeetleETL
         CreateStage.new(@config, t.table_name, t.relations, t.column_names)
       }
 
-      @report.deep_merge SequentialStepRunner.new(@config, steps).run
+      @report.deep_merge StepRunner.new(@config, steps).run
     end
 
     def run_transform
@@ -48,7 +48,7 @@ module BeetleETL
       }
 
       result = @config.database.transaction do
-        SequentialStepRunner.new(@config, steps).run
+        StepRunner.new(@config, steps).run
       end
 
       @report.deep_merge result
@@ -59,7 +59,7 @@ module BeetleETL
         DropStage.new(@config, t.table_name)
       }
 
-      @report.deep_merge SequentialStepRunner.new(@config, steps).run
+      @report.deep_merge StepRunner.new(@config, steps).run
     end
 
   end

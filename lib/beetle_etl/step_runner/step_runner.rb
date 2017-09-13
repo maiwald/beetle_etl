@@ -1,15 +1,26 @@
-require 'active_support/core_ext/hash/slice'
+require_relative './dependency_resolver'
 
 module BeetleETL
-  class AbstractStepRunner
+  class StepRunner
 
     def initialize(config, steps)
       @config = config
       @steps = steps
+      @dependency_resolver = DependencyResolver.new(steps)
+      @completed = Set.new
     end
 
     def run
-      raise NotImplementedError
+      results = {}
+
+      until all_steps_complete?
+        runnables.each do |step|
+          add_result!(results, run_step(step))
+          @completed.add(step.name)
+        end
+      end
+
+      results
     end
 
     private
@@ -35,12 +46,20 @@ module BeetleETL
       raise e
     end
 
+    def runnables
+      @dependency_resolver.resolvables(@completed)
+    end
+
     def add_result!(results, step_data)
       table_name = step_data[:table_name]
       step_name = step_data[:step_name]
 
       results[table_name] ||= {}
       results[table_name][step_name] = step_data.slice(:started_at, :finished_at)
+    end
+
+    def all_steps_complete?
+      @steps.map(&:name).to_set == @completed.to_set
     end
 
   end
