@@ -1,4 +1,4 @@
-Copyright (c) 2014 Luciano Maiwald
+Copyright (c) 2014 - 2017 Luciano Maiwald
 
 MIT License
 
