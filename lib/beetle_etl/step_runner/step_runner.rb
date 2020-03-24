@@ -55,7 +55,10 @@ module BeetleETL
       step_name = step_data[:step_name]
 
       results[table_name] ||= {}
-      results[table_name][step_name] = step_data.slice(:started_at, :finished_at)
+      results[table_name][step_name] = {
+        started_at: step_data[:started_at],
+        finished_at: step_data[:finished_at]
+      }
     end
 
     def all_steps_complete?

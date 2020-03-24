@@ -1,8 +1,5 @@
 require 'spec_helper'
 
-require 'active_support/core_ext/date/calculations'
-require 'active_support/core_ext/numeric/time'
-
 module BeetleETL
   describe TableDiff do
 
@@ -13,6 +10,8 @@ module BeetleETL
         c.database = test_database
       end
     end
+
+    let(:time_in_past) { Time.new(2020, 3, 23) }
 
     subject { TableDiff.new(config, :example_table) }
 
@@ -60,9 +59,9 @@ module BeetleETL
       it 'assigns CREATE to new records' do
 
         insert_into(:example_table).values(
-          [ :id , :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at ] ,
-          [ 1   , 'existing'   , external_source  , 'existing content' , 'ignored content'  , 1       , nil         ] ,
-          [ 2   , 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 2       , 1.day.ago   ] ,
+          [ :id , :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at  ] ,
+          [ 1   , 'existing'   , external_source  , 'existing content' , 'ignored content'  , 1       , nil          ] ,
+          [ 2   , 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 2       , time_in_past ] ,
         )
 
         test_database.run "SELECT setval('public.example_table_id_seq', 99)"
@@ -88,10 +87,10 @@ module BeetleETL
         except externald_*_id columns and columns not contained in the stage table' do
 
         insert_into(:example_table).values(
-          [ :id , :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at ] ,
-          [ 1   , 'existing_1' , external_source  , 'existing content' , 'ignored content'  , 1       , nil         ] ,
-          [ 2   , 'existing_2' , external_source  , 'existing content' , 'ignored content'  , 2       , nil         ] ,
-          [ 3   , 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 3       , 1.day.ago   ] ,
+          [ :id , :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at  ] ,
+          [ 1   , 'existing_1' , external_source  , 'existing content' , 'ignored content'  , 1       , nil          ] ,
+          [ 2   , 'existing_2' , external_source  , 'existing content' , 'ignored content'  , 2       , nil          ] ,
+          [ 3   , 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 3       , time_in_past ] ,
         )
 
         insert_into(subject.stage_table_name.to_sym).values(
@@ -115,9 +114,9 @@ module BeetleETL
     describe 'transition_delete' do
       it 'creates records with DELETE that no loger exist in the stage table for the given run' do
         insert_into(:example_table).values(
-          [ :id , :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at ] ,
-          [ 1   , 'existing'   , external_source  , 'existing content' , 'ignored content'  , 1       , nil         ] ,
-          [ 2   , 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 2       , 1.day.ago   ] ,
+          [ :id , :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at  ] ,
+          [ 1   , 'existing'   , external_source  , 'existing content' , 'ignored content'  , 1       , nil          ] ,
+          [ 2   , 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 2       , time_in_past ] ,
         )
 
         subject.transition_delete
@@ -132,9 +131,9 @@ module BeetleETL
     describe 'transition_reinstate' do
       it 'assigns REINSTATE to previously deleted records' do
         insert_into(:example_table).values(
-          [ :id , :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at ] ,
-          [ 1   , 'existing'   , external_source  , 'existing content' , 'ignored content'  , 1       , nil         ] ,
-          [ 2   , 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 2       , 1.day.ago   ] ,
+          [ :id , :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at  ] ,
+          [ 1   , 'existing'   , external_source  , 'existing content' , 'ignored content'  , 1       , nil          ] ,
+          [ 2   , 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 2       , time_in_past ] ,
         )
 
         insert_into(subject.stage_table_name.to_sym).values(
@@ -159,7 +158,7 @@ module BeetleETL
         insert_into(:example_table).values(
           [ :id , :external_id , :external_source , :payload           , :ignored_attribute , :foo_id , :deleted_at ] ,
           [ 1   , 'existing'   , external_source  , 'existing content' , 'ignored content'  , 1       , nil         ] ,
-          [ 2   , 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 2       , 1.day.ago   ] ,
+          [ 2   , 'deleted'    , external_source  , 'deleted content'  , 'ignored content'  , 2       , time_in_past   ] ,
         )
 
         insert_into(subject.stage_table_name.to_sym).values(

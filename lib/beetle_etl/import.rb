@@ -1,5 +1,3 @@
-require 'active_support/core_ext/hash/deep_merge'
-
 module BeetleETL
   class Import
 
@@ -27,7 +25,7 @@ module BeetleETL
         CreateStage.new(@config, t.table_name, t.relations, t.column_names)
       }
 
-      @report.deep_merge StepRunner.new(@config, steps).run
+      merge_report! StepRunner.new(@config, steps).run
     end
 
     def run_transform
@@ -39,7 +37,7 @@ module BeetleETL
         ]
       }
 
-      @report.deep_merge AsyncStepRunner.new(@config, steps).run
+      merge_report! AsyncStepRunner.new(@config, steps).run
     end
 
     def run_load
@@ -51,7 +49,7 @@ module BeetleETL
         StepRunner.new(@config, steps).run
       end
 
-      @report.deep_merge result
+      merge_report! result
     end
 
     def run_cleanup
@@ -59,7 +57,11 @@ module BeetleETL
         DropStage.new(@config, t.table_name)
       }
 
-      @report.deep_merge StepRunner.new(@config, steps).run
+      merge_report! StepRunner.new(@config, steps).run
+    end
+
+    def merge_report!(new_report)
+      @report.merge!(new_report) { |key, oldval, newval| oldval.merge(newval) }
     end
 
   end

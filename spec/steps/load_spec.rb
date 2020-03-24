@@ -1,15 +1,12 @@
 require 'spec_helper'
 
-require 'active_support/core_ext/date/calculations'
-require 'active_support/core_ext/numeric/time'
-
 module BeetleETL
   describe Load do
 
     let(:external_source) { 'my_source' }
 
-    let(:now) { Time.now.beginning_of_day }
-    let(:yesterday) { 1.day.ago.beginning_of_day }
+    let(:today) { Time.new(2020, 3, 24) }
+    let(:yesterday) { Time.new(2020, 3, 23) }
 
     let(:config) do
       Configuration.new.tap do |c|
@@ -21,7 +18,7 @@ module BeetleETL
     subject { Load.new(config, :example_table, []) }
 
     before do
-      allow(subject).to receive(:now) { now }
+      allow(subject).to receive(:now) { today }
 
       test_database.create_schema(:stage)
       test_database.create_table(subject.stage_table_name.to_sym) do
@@ -86,7 +83,7 @@ module BeetleETL
 
         expect(:example_table).to have_values(
           [ :id , :external_id  , :external_source , :foo_id , :created_at , :updated_at , :deleted_at , :payload  ] ,
-          [ 3   , 'external_id' , external_source  , 22      , now         , now         , nil         , 'content' ] ,
+          [ 3   , 'external_id' , external_source  , 22      , today       , today       , nil         , 'content' ] ,
         )
       end
     end
@@ -107,7 +104,7 @@ module BeetleETL
 
         expect(:example_table).to have_values(
           [ :id , :external_id  , :external_source , :foo_id , :created_at , :updated_at , :deleted_at , :payload          ] ,
-          [ 1   , 'external_id' , external_source  , 33      , yesterday   , now         , nil         , 'updated content' ] ,
+          [ 1   , 'external_id' , external_source  , 33      , yesterday   , today       , nil         , 'updated content' ] ,
         )
       end
 
@@ -126,7 +123,7 @@ module BeetleETL
 
         expect(:example_table).to have_values(
           [ :id , :external_id  , :external_source , :foo_id , :created_at , :updated_at , :deleted_at , :payload          ] ,
-          [ 1   , 'external_id' , external_source  , 33      , yesterday   , now         , nil         , 'updated content' ] ,
+          [ 1   , 'external_id' , external_source  , 33      , yesterday   , today       , nil         , 'updated content' ] ,
         )
       end
     end
@@ -147,7 +144,7 @@ module BeetleETL
 
         expect(:example_table).to have_values(
           [ :id , :external_id  , :external_source , :foo_id , :created_at , :updated_at , :deleted_at , :payload  ] ,
-          [ 1   , 'external_id' , external_source  , 22      , yesterday   , now         , now         , 'content' ] ,
+          [ 1   , 'external_id' , external_source  , 22      , yesterday   , today       , today       , 'content' ] ,
         )
       end
     end

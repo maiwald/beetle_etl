@@ -4,18 +4,15 @@ require 'timecop'
 require_relative 'example_schema'
 require 'yaml'
 
-require 'active_support/core_ext/date/calculations'
-require 'active_support/core_ext/numeric/time'
-
 Thread::abort_on_exception = true
 
 describe BeetleETL do
 
   include ExampleSchema
 
-  let!(:time1) { Time.new(2014 ,  7 , 17 , 16 , 12).beginning_of_day }
-  let!(:time2) { Time.new(2015 ,  2 ,  8 , 22 , 18).beginning_of_day }
-  let!(:time3) { Time.new(2015 , 11 ,  3 , 12 , 17).beginning_of_day }
+  let!(:time1) { Time.new(2014 ,  7 , 17 , 16 , 12) }
+  let!(:time2) { Time.new(2015 ,  2 ,  8 , 22 , 18) }
+  let!(:time3) { Time.new(2015 , 11 ,  3 , 12 , 17) }
 
   before :each do
     create_tables
